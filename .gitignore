@@ -1,2 +1,3 @@
 .env
 treasure_hunt.egg-info
+__pycache__
