@@ -1,7 +1,15 @@
-def print_treasure_hunt_title():
+def header():
     print("\n" + "=" * 40)
-    print("        🌟 TREASURE-HUNT 🌟")
+
+
+def footer():
     print("=" * 40)
+
+
+def print_treasure_hunt_title():
+    header()
+    print("        🌟 TREASURE-HUNT 🌟")
+    footer()
     print("🪙 Prepare-se para a aventura! 🏴‍☠️\n")
 
 def options():
