@@ -6,7 +6,7 @@ def footer():
     print("=" * 40)
 
 
-def print_treasure_hunt_title():
+def treasure_hunt_title():
     header()
     print("        🌟 TREASURE-HUNT 🌟")
     footer()
@@ -19,4 +19,12 @@ def move_options():
     print("Press [S] to GO DOWN.")
     print("Press [A] to GO LEFT.")
     print("Press [D] to GO RIGHT.")
+    footer()
+
+
+def number_of_players():
+    header()
+    print("Select number of players: ")
+    print("Press [2] for two players")
+    print("Press [3] for three players")
     footer()
