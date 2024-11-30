@@ -12,10 +12,11 @@ def print_treasure_hunt_title():
     footer()
     print("🪙 Prepare-se para a aventura! 🏴‍☠️\n")
 
-def options():
-    print("#"*20)
-    print("Press [S] to send message.")
-    print("Press [Q] to quit.")
-    print("#"*20)
 
-print_treasure_hunt_title()
+def move_options():
+    header()
+    print("Press [W] to GO UP.")
+    print("Press [S] to GO DOWN.")
+    print("Press [A] to GO LEFT.")
+    print("Press [D] to GO RIGHT.")
+    footer()
