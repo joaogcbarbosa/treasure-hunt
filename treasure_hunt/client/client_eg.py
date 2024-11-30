@@ -1,17 +1,20 @@
 from socket import socket, AF_INET, SOCK_STREAM
+from typing import Any, Generator
 from ..constants import SERVER_PORT, SERVER_HOST
 from time import sleep
+from contextlib import contextmanager
 
-msg = "oi"
+@contextmanager
+def client() -> Generator[socket, Any, Any]:
+    try:
+        client_socket = socket(family=AF_INET, type=SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
+        yield client_socket
+    except Exception as e:
+        print(f"Could not connect: {e}")
+    finally:
+        client_socket.close()
 
-client_socket_1 = socket(family=AF_INET, type=SOCK_STREAM)
-client_socket_1.connect((SERVER_HOST, SERVER_PORT))
-client_socket_1.send(msg.encode("utf-8"))
-sleep(3)
-client_socket_2 = socket(family=AF_INET, type=SOCK_STREAM)
-client_socket_2.connect((SERVER_HOST, SERVER_PORT))
-client_socket_2.send(msg.encode("utf-8"))
-sleep(3)
-client_socket_3 = socket(family=AF_INET, type=SOCK_STREAM)
-client_socket_3.connect((SERVER_HOST, SERVER_PORT))
-client_socket_3.send(msg.encode("utf-8"))
+
+def send_message(msg: str, client: socket) -> None:
+    client.send(msg.encode("utf-8"))
