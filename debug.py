@@ -1,1 +1,0 @@
-from treasure_hunt.server import server_eg
