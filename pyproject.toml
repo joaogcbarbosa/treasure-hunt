@@ -1,0 +1,19 @@
+[project]
+name = "treasure-hunt"
+dynamic = ["version"]
+authors = [
+  {name = "João Gabriel de Carvalho Barbosa", email = "joaogcb29@gmail.com"},
+]
+maintainers = [
+  {name = "João Gabriel de Carvalho Barbosa", email = "joaogcb29@gmail.com"},
+]
+
+dependencies = [
+    "python-dotenv",
+]   
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+]
