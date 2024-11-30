@@ -1,4 +1,4 @@
-from treasure_hunt.client.client_eg import client, send_message
+from treasure_hunt.client.client import client, send_message
 from time import sleep
 
 if __name__ == "__main__":
