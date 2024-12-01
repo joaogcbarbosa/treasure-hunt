@@ -28,3 +28,7 @@ def number_of_players():
     print("Press [2] for two players")
     print("Press [3] for three players")
     footer()
+
+
+def number_of_players_warn():
+    print("Please select a possible number of players.")
