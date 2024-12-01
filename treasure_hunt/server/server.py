@@ -3,23 +3,23 @@ from ..utils.constants import HOST, PORT
 from ..models.map import GameMap
 from random import randint
 
-map = GameMap()
+game_map = GameMap()
 
-def spot_players(number_of_players: int, map: GameMap) -> GameMap:
+def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
     occupied_spots = []
     for i in range(1, number_of_players + 1):
-        height_bound, width_bound = map.bounds
+        height_bound, width_bound = game_map.bounds
         height, width = randint(0, height_bound), randint(0, width_bound)
         while (height, width) in occupied_spots:
             height, width = randint(0, height_bound), randint(0, width_bound)
-        map.update(height, width, f"P{i}")
+        game_map.update(height, width, f"P{i}")
         occupied_spots.append((height, width))
-    return map
+    return game_map
 
 
 def game(number_of_players: int):
-    map = spot_players(number_of_players, map)
-    map.display()
+    game_map = spot_players(number_of_players, game_map)
+    game_map.display()
 
 
 def run_server(number_of_players: int) -> None:

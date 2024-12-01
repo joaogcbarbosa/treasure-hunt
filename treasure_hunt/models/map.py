@@ -19,7 +19,7 @@ class GameMap:
         return self._HEIGHT - 1, self._WIDTH - 1
 
     def initialize(self):
-        self.map = [
+        self.game_map = [
             [self._random_treasure_value() for _ in range(4)],
             [self._random_treasure_value() for _ in range(4)],
             [self._random_treasure_value() for _ in range(4)],
@@ -27,9 +27,9 @@ class GameMap:
         ]
 
     def display(self):
-        for row in self.map:
+        for row in self.game_map:
             print(" | ".join(row))
         print("\n")
 
     def update(self, x: int, y: int, value: str | int):
-        self.map[x][y] = value
+        self.game_map[x][y] = value
