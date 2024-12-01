@@ -10,14 +10,14 @@ class GameMap:
         return cls._instance
     
     def _random_treasure_value(self) -> str:
-        return str(randint(1, 10))
+        return str(randint(1, 9))
 
     def initialize(self):
         self.map = [
-            [self._random_treasure_value()] * 4,
-            [self._random_treasure_value()] * 4,
-            [self._random_treasure_value()] * 4,
-            [self._random_treasure_value()] * 4,
+            [self._random_treasure_value() for _ in range(4)],
+            [self._random_treasure_value() for _ in range(4)],
+            [self._random_treasure_value() for _ in range(4)],
+            [self._random_treasure_value() for _ in range(4)],
         ]
 
     def display(self):
