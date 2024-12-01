@@ -1,8 +1,12 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from ..utils.constants import HOST, PORT
+from ..models.map import GameMap
 
-def start_game():
+map = GameMap()
+
+def game():
     pass
+
 
 
 def run_server(number_of_players: int) -> None:
@@ -18,7 +22,7 @@ def run_server(number_of_players: int) -> None:
                 print(f"Connection from {addr} accepted")
                 accepted_connections += 1
                 if accepted_connections == number_of_players:
-                    start_game()
+                    game()
                 print("Waiting for other players")
             else:
                 print(f"Connection from {addr} refused")
