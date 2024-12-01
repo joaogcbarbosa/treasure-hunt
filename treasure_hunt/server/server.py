@@ -1,5 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from ..constants import MAX_PLAYERS, HOST, PORT
+from ..utils.constants import MAX_PLAYERS, HOST, PORT
 
 server_socket = socket(family=AF_INET, type=SOCK_STREAM)
 server_socket.bind((HOST, PORT))

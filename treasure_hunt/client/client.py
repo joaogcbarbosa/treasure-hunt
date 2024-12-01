@@ -1,6 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from typing import Any, Generator
-from ..constants import SERVER_PORT, SERVER_HOST
+from ..utils.constants import SERVER_PORT, SERVER_HOST
 from time import sleep
 from contextlib import contextmanager
 
