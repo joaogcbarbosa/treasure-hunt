@@ -7,4 +7,6 @@ if __name__ == "__main__":
     treasure_hunt_title()
     number_of_players()
     nro_players = check_number_of_players()
-
+    # starting server..
+    # connecting players...
+    # starting game...
