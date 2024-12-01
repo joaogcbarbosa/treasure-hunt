@@ -31,5 +31,5 @@ class GameMap:
             print(" | ".join(row))
         print("\n")
 
-    def update(self, x, y, value):
+    def update(self, x: int, y: int, value: str | int):
         self.map[x][y] = value
