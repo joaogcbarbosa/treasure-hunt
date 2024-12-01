@@ -2,6 +2,9 @@ from random import randint
 
 class GameMap:
     _instance = None
+    # TODO: map bounds could be set by user?
+    _HEIGHT = 4
+    _WIDTH = 4
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -11,6 +14,9 @@ class GameMap:
     
     def _random_treasure_value(self) -> str:
         return str(randint(1, 9))
+    
+    def bounds(self) -> tuple[int, int]:
+        return self._HEIGHT - 1, self._WIDTH - 1
 
     def initialize(self):
         self.map = [
