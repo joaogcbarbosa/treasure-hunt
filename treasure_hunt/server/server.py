@@ -37,7 +37,8 @@ def run_server(number_of_players: int) -> None:
                 accepted_connections += 1
                 if accepted_connections == number_of_players:
                     game(number_of_players)
-                print("Waiting for other players")
+                else:
+                    print("Waiting for other players")
             else:
                 print(f"Connection from {addr} refused")
                 conn.close()
