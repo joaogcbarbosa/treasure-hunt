@@ -8,7 +8,7 @@ game_map = GameMap()
 def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
     occupied_spots = []
     for i in range(1, number_of_players + 1):
-        height_bound, width_bound = game_map.bounds
+        height_bound, width_bound = game_map.bounds()
         height, width = randint(0, height_bound), randint(0, width_bound)
         while (height, width) in occupied_spots:
             height, width = randint(0, height_bound), randint(0, width_bound)
@@ -18,6 +18,7 @@ def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
 
 
 def game(number_of_players: int):
+    global game_map
     game_map = spot_players(number_of_players, game_map)
     game_map.display()
 
