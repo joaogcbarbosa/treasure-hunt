@@ -18,7 +18,7 @@ def run_server(number_of_players: int) -> None:
                 print(f"Connection from {addr} accepted")
                 accepted_connections += 1
                 if accepted_connections == number_of_players:
-                    game(number_of_players)
+                    game(number_of_players, conn)
                 else:
                     print("Waiting for other players")
             else:
