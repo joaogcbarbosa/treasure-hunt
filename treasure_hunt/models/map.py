@@ -1,4 +1,5 @@
 from random import randint
+from typing import Union
 
 class GameMap:
     _instance = None
@@ -26,10 +27,11 @@ class GameMap:
             [self._random_treasure_value() for _ in range(4)],
         ]
 
-    def display(self):
+    def display(self) -> list[list[Union[int, str]]]:
+        result = []
         for row in self.game_map:
-            print(" | ".join(row))
-        print("\n")
+            result.append(" | ".join(row))
+        return "\n".join(result) 
 
     def update(self, x: int, y: int, value: str | int):
         self.game_map[x][y] = value
