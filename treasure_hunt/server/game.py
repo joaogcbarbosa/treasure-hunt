@@ -1,3 +1,5 @@
+from socket import socket
+from time import sleep
 from ..models.map import GameMap
 from random import randint
 
@@ -24,10 +26,14 @@ def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
     return game_map
 
 
-def game(number_of_players: int):
+def game(number_of_players: int, conn: socket):
     global game_map, rnd, occupied_spots
-    if rnd == 0:
-        game_map = spot_players(number_of_players, game_map)
-    else:
-        game_map = move_player(game_map, occupied_spots)
-    game_map.display()
+    while True:
+        if rnd == 0:
+            game_map = spot_players(number_of_players, game_map)
+            print(game_map.display())
+        else:
+            mensagem = game_map.display()
+            conn.sendall(mensagem.encode('utf-8'))
+        rnd += 1
+        sleep(5)
