@@ -8,3 +8,5 @@ if __name__ == "__main__":
             if not data:  # Se data for vazio, a conexão foi fechada
                 print("Server has reached its limit of connections.")
                 break
+            mensagem = c.recv(1024).decode('utf-8')
+            print(mensagem)
