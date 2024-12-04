@@ -28,6 +28,8 @@ def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
 
 def game(number_of_players: int, conn: socket):
     global game_map, rnd, occupied_spots
+    print("Initializing map.\n")
+    sleep(2)
     while True:
         if rnd == 0:
             game_map = spot_players(number_of_players, game_map)
