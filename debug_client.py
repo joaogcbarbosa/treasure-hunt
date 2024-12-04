@@ -11,5 +11,8 @@ if __name__ == "__main__":
                 break
             data = c.recv(1024).decode("utf-8")
             data = json.loads(data)
-            print(data["map_situation"])
-            choose = input(data["your_turn_sentence"])
+            map_situation = data["map_situation"]
+            your_turn_sentence = data["your_turn_sentence"]
+            print(map_situation)
+            possible_moves = check_possible_moves(map_situation)
+            choose = input(your_turn_sentence)
