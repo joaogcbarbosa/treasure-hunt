@@ -1,11 +1,10 @@
 from socket import socket
 from time import sleep
 from ..models.map import GameMap
+from .game_map import game_map
 from random import randint
 import json
 
-
-game_map = GameMap()
 rnd = 0
 occupied_spots = []
 
