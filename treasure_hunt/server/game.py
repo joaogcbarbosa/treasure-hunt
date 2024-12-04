@@ -2,6 +2,7 @@ from socket import socket
 from time import sleep
 from ..models.map import GameMap
 from random import randint
+import json
 
 
 game_map = GameMap()
@@ -35,7 +36,11 @@ def game(number_of_players: int, conn: socket):
             game_map = spot_players(number_of_players, game_map)
             print(game_map.display())
         else:
-            mensagem = game_map.display()
-            conn.sendall(mensagem.encode('utf-8'))
+            data = {
+                "your_turn_sentence": "\nYour turn:\n",
+                "map_situation": game_map.display(),
+            }
+            data = json.dumps(data)
+            conn.sendall(data.encode("utf-8"))
         rnd += 1
         sleep(5)
