@@ -10,11 +10,11 @@ def run_server(number_of_players: int) -> None:
         s.bind((HOST, PORT))
         s.listen()
 
-        accepted_connections = 0
         print()
         print("Running server...")
         print("Waiting for players to connect")
         print()
+        accepted_connections = 0
         while True:
             conn, addr = s.accept()
             if accepted_connections < number_of_players:
