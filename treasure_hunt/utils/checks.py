@@ -1,4 +1,4 @@
-from time import sleep
+# from time import sleep
 from typing import Union
 
 from .constants import MAX_PLAYERS, MIN_PLAYERS
@@ -18,10 +18,7 @@ def check_number_of_players() -> int:
 def check_available_moves(
     positions: list[tuple[int]], game_map: list[list[Union[int, str]]]
 ) -> list[tuple[int]]:
-    map_positions = []
-    for i in range(len(game_map)):
-        for j in range(len(game_map)):
-            map_positions.append((i, j))
+    map_positions = [(i, j) for i in range(len(game_map)) for j in range(len(game_map))]
 
     positions_copy = positions.copy()
     for p in positions_copy:
