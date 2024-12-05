@@ -23,7 +23,7 @@ def check_available_positions(positions: list[tuple[int]], game_map: list[list[U
             map_positions.append((i, j))
 
     for p in positions:
-        if p not in map_positions:
+        if p not in map_positions or isinstance(game_map[p[0]][p[1]], str):
             positions.remove(p)
 
 
