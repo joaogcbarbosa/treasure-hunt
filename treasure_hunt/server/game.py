@@ -3,7 +3,7 @@ from time import sleep
 from ..models.map import GameMap
 from .game_map import game_map
 from random import randint
-import json
+import pickle
 
 rnd = 0
 occupied_spots = []
@@ -37,9 +37,10 @@ def game(number_of_players: int, conn: socket):
         else:
             data = {
                 "your_turn_sentence": "\nYour turn:\n",
-                "map_situation": game_map.display(),
+                "map_situation": game_map,
+                "player": "P1",
             }
-            data = json.dumps(data)
-            conn.sendall(data.encode("utf-8"))
+            data = pickle.dumps(data)
+            conn.sendall(data)
         rnd += 1
         sleep(5)
