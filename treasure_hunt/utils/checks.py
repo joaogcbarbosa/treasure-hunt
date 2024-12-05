@@ -41,9 +41,9 @@ def check_player_position(game_map: list[list[Union[int, str]]], player: str) ->
     return x, y
 
 
-def check_possible_moves(player: str, game_map: list[list[Union[int, str]]]) -> list[tuple[int]]:
+def check_possible_moves(player: str, game_map: list[list[Union[int, str]]]) -> tuple[list[tuple[int]], tuple[int, int]]:
     player_pos = check_player_position(game_map, player)
     x, y = player_pos
     surrounding_positions = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
     available_moves = check_available_moves(surrounding_positions, game_map)
-    return available_moves
+    return available_moves, player_pos
