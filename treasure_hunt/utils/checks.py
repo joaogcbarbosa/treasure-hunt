@@ -23,7 +23,8 @@ def check_available_moves(
         for j in range(len(game_map)):
             map_positions.append((i, j))
 
-    for p in positions:
+    positions_copy = positions.copy()
+    for p in positions_copy:
         if p not in map_positions or isinstance(game_map[p[0]][p[1]], str):
             positions.remove(p)
 
