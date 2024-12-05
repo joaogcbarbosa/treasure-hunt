@@ -16,7 +16,7 @@ from typing import Union
 #     return nro_players
 
 
-def check_available_positions(positions: list[tuple[int]], game_map: list[list[Union[int, str]]]) -> list[tuple[int]]:
+def check_available_moves(positions: list[tuple[int]], game_map: list[list[Union[int, str]]]) -> list[tuple[int]]:
     map_positions = []
     for i in range(len(game_map)):
         for j in range(len(game_map)):
@@ -46,8 +46,8 @@ def check_possible_moves(player: str, game_map: list[list[Union[int, str]]]) -> 
     player_pos = check_player_position(game_map, player)
     x, y = player_pos
     surrounding_positions = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-    available_positions = check_available_positions(surrounding_positions, game_map)
-    return available_positions
+    available_moves = check_available_moves(surrounding_positions, game_map)
+    return available_moves
 
 
 if __name__ == "__main__":
