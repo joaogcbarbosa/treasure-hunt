@@ -1,4 +1,4 @@
-# from time import sleep
+from time import sleep
 from typing import Union
 
 from .constants import MAX_PLAYERS, MIN_PLAYERS
