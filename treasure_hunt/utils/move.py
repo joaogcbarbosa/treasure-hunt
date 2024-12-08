@@ -15,6 +15,7 @@ def collect_coin(
 
 def move_player(
     choice: Literal["W", "A", "S", "D"],
+    player: str,
     possible_moves: list[tuple[int]],
     player_position: tuple[int, int],
     coin_db: dict[str, list],
@@ -36,10 +37,10 @@ def move_player(
     if new_position in possible_moves:
         former_x, former_y = x, y
         x, y = new_position[0], new_position[1]
-        collect_coin(coin_db, (x, y), game_map, "P1")
-        print(f"Jogador P1 coletou {sum(coin_db['P1'])} pontos.")
+        collect_coin(coin_db, (x, y), game_map, player)
+        print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
         game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
-        game_map.update(x, y, "P1")  # Jogador se moveu
+        game_map.update(x, y, player)  # Jogador se moveu
         return game_map
 
     print("Could not move.")

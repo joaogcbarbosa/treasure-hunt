@@ -27,7 +27,7 @@ if __name__ == "__main__":
                 )
 
                 choice = input("Your turn: ").upper()
-                map_situation = move_player(choice, possible_moves, player_pos, coin_db, map_situation)
+                map_situation = move_player(choice, player, possible_moves, player_pos, coin_db, map_situation)
 
                 # Enviando mapa atualizado para servidor
                 data = {
