@@ -21,8 +21,8 @@ if __name__ == "__main__":
             your_turn_sentence = data["your_turn_sentence"]
             player = data["player"]
 
-            print(map_situation)
+            print(game_map.display())
             possible_moves, player_pos = check_possible_moves(player, map_situation)
             choice = input(your_turn_sentence)
-            move_player(choice, possible_moves, game_map, player_pos)
+            move_player(choice, possible_moves, player_pos, game_map)
             print(game_map.display())
