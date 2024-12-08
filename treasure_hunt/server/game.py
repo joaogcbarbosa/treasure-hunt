@@ -38,4 +38,4 @@ def game(number_of_players: int, conn: socket):
     while not isinstance(data_from_client, GameMap):
         conn.sendall(data)  # Envia a instância original do mapa
         data_from_client = conn.recv(2048)
-        data_from_client = pickle.loads(data_from_client)["game_map"]  # Aguarda o ACK do cliente
+        data_from_client = pickle.loads(data_from_client)["game_map"]  # Carrega mapa alterado pelo cliente
