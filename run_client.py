@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 string_to_matrix(map_situation.display())
             )
 
-            choice = input("Your turn: ")
+            choice = input("Your turn: ").upper()
             map_situation = move_player(choice, possible_moves, player_pos, map_situation)
 
             # Enviando mapa atualizado para servidor
