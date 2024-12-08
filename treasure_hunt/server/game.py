@@ -20,7 +20,7 @@ def spot_players(number_of_players: int, game_map: GameMap) -> None:
         occupied_spots.append((height, width, player))
 
 
-def game(number_of_players: int, conn: socket):
+def game(number_of_players: int, coin_db: dict[str, list], conn: socket):
     global rnd
     if rnd == 0:
         print("Initializing map.\n")
@@ -30,12 +30,16 @@ def game(number_of_players: int, conn: socket):
 
     data = {
         "game_map": game_map,
+        "coin_db": coin_db,
         "player": "P1",
     }
     data = pickle.dumps(data)
 
-    data_from_client = None
-    while not isinstance(data_from_client, GameMap):
+    map_situation = None
+    db_situation = None
+    while not (isinstance(map_situation, GameMap) and isinstance(db_situation, dict)):
         conn.sendall(data)  # Envia a instância original do mapa
-        data_from_client = conn.recv(2048)
-        data_from_client = pickle.loads(data_from_client)["game_map"]  # Carrega mapa alterado pelo cliente
+        data_from_client = pickle.loads(conn.recv(2048))
+        map_situation = data_from_client["game_map"]  # Carrega mapa alterado pelo cliente
+        db_situation = data_from_client["coin_db"]  # Carrega banco alterado pelo cliente
+    coin_db.update(db_situation)
