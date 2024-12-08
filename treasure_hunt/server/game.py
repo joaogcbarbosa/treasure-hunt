@@ -8,11 +8,6 @@ import pickle
 rnd = 0
 occupied_spots = []
 
-def move_player():
-    global occupied_spots
-    # TODO: continue from here
-
-
 def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
     global occupied_spots
     for i in range(1, number_of_players + 1):
