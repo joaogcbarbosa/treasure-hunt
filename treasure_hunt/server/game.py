@@ -8,7 +8,7 @@ import pickle
 rnd = 0
 occupied_spots = []
 
-def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
+def spot_players(number_of_players: int, game_map: GameMap) -> None:
     global occupied_spots
     for i in range(1, number_of_players + 1):
         height_bound, width_bound = game_map.bounds()
@@ -18,24 +18,26 @@ def spot_players(number_of_players: int, game_map: GameMap) -> GameMap:
             height, width = randint(0, height_bound), randint(0, width_bound)
         game_map.update(height, width, player)
         occupied_spots.append((height, width, player))
-    return game_map
 
 
 def game(number_of_players: int, conn: socket):
-    global game_map, rnd, occupied_spots
-    print("Initializing map.\n")
-    sleep(2)
-    while True:
-        if rnd == 0:
-            game_map = spot_players(number_of_players, game_map)
-            print(game_map.display())
-        else:
-            data = {
-                "your_turn_sentence": "\nYour turn:\n",
-                "map_situation": game_map,
-                "player": "P1",
-            }
-            data = pickle.dumps(data)
-            conn.sendall(data)
+    global rnd
+    if rnd == 0:
+        print("Initializing map.\n")
+        sleep(2)
+        spot_players(number_of_players, game_map)  # Altera instância original do mapa
         rnd += 1
-        sleep(5)
+
+    data = {
+        "game_map": game_map,
+        "player": "P1",
+    }
+    data = pickle.dumps(data)
+
+    data_from_client = None
+    while not isinstance(data_from_client, GameMap):
+        conn.sendall(data)  # Envia a instância original do mapa
+        print("Esperando confirmação do cliente...")
+        data_from_client = conn.recv(2048)
+        data_from_client = pickle.loads(data_from_client)["game_map"]  # Aguarda o ACK do cliente
+        print(f"Servidor recebeu: {data_from_client}")

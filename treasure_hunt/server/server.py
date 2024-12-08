@@ -16,14 +16,13 @@ def server_runner(number_of_players: int) -> None:
         print()
         accepted_connections = 0
         while True:
-            conn, addr = s.accept()
             if accepted_connections < number_of_players:
+                conn, addr = s.accept()
                 print(f"Connection from {addr} accepted")
                 accepted_connections += 1
-                if accepted_connections == number_of_players:
-                    game(number_of_players, conn)
-                else:
-                    print("Waiting for other players")
+                print("Waiting for other players")
+            elif accepted_connections == number_of_players:
+                game(number_of_players, conn) 
             else:
                 print(f"Connection from {addr} refused")
                 conn.close()

@@ -1,4 +1,6 @@
+from time import sleep
 from treasure_hunt.client.client import client
+from treasure_hunt.models.map import GameMap
 from treasure_hunt.utils.constants import SERVER_PORT, SERVER_HOST
 from treasure_hunt.utils.checks import check_possible_moves
 from treasure_hunt.utils.move import move_player
@@ -10,19 +12,26 @@ if __name__ == "__main__":
     with client(SERVER_HOST, SERVER_PORT) as c:
         while True:
 
-            data = c.recv(1024)
-            if not data:
-                print("Server has reached its limit of connections.")
-                break
 
-            data = c.recv(1024)
+            data = c.recv(2048)  # Recebe os dados do servidor
+            print("Cliente recebeu os dados:", data)  # Debug
             data = pickle.loads(data)
-            map_situation = string_to_matrix(data["map_situation"].display())
-            your_turn_sentence = data["your_turn_sentence"]
-            player = data["player"]
+            map_situation: GameMap = data["game_map"]
+            player: str = data["player"]
 
-            print(game_map.display())
-            possible_moves, player_pos = check_possible_moves(player, map_situation)
-            choice = input(your_turn_sentence)
-            move_player(choice, possible_moves, player_pos, game_map)
-            print(game_map.display())
+            print(map_situation.display())
+
+            possible_moves, player_pos = check_possible_moves(
+                player, 
+                string_to_matrix(map_situation.display())
+            )
+
+            choice = input("Your turn: ")
+            map_situation = move_player(choice, possible_moves, player_pos, map_situation)
+
+            # Enviando mapa atualizado para servidor
+            data = {
+                "game_map": map_situation,
+            }
+            data = pickle.dumps(data)
+            c.sendall(data)  # Envia instância original do mapa
