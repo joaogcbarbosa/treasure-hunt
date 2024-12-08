@@ -5,7 +5,7 @@ from random import randint
 from .game import game
 
 
-def run_server(number_of_players: int) -> None:
+def server_runner(number_of_players: int) -> None:
     with socket(AF_INET, SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
