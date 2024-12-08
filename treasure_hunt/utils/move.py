@@ -22,8 +22,10 @@ def move_player(
     new_position = (x + dx, y + dy)
 
     if new_position in possible_moves:
+        former_x, former_y = x, y
         x, y = new_position[0], new_position[1]
-        game_map.update(x, y, "P1")
+        game_map.update(former_x, former_y, 0)  # Jogador colegou a pontuação de onde estava
+        game_map.update(x, y, "P1")  # Jogador se moveu
         return
 
     print("Could not move.")
