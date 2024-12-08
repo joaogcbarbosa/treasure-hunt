@@ -27,7 +27,7 @@ class GameMap:
             [self._random_treasure_value() for _ in range(4)],
         ]
 
-    def display(self) -> list[list[Union[int, str]]]:
+    def display(self) -> str:
         result = []
         for row in self.game_map:
             result.append(" | ".join(row))
