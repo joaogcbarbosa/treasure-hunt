@@ -16,6 +16,7 @@ if __name__ == "__main__":
             data = c.recv(2048)  # Recebe os dados do servidor
             data = pickle.loads(data)
             map_situation: GameMap = data["game_map"]
+            coin_db: dict[str, list] = data["coin_db"]
             player: str = data["player"]
 
             print(map_situation.display())
@@ -26,11 +27,12 @@ if __name__ == "__main__":
             )
 
             choice = input("Your turn: ").upper()
-            map_situation = move_player(choice, possible_moves, player_pos, map_situation)
+            map_situation = move_player(choice, possible_moves, player_pos, coin_db, map_situation)
 
             # Enviando mapa atualizado para servidor
             data = {
                 "game_map": map_situation,
+                "coin_db": coin_db,
             }
             data = pickle.dumps(data)
-            c.sendall(data)  # Envia instância original do mapa
+            c.sendall(data)  # Envia instância original do mapa e bancoS
