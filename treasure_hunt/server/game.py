@@ -31,7 +31,6 @@ def game(number_of_players: int, coin_db: dict[str, list], conn: socket):
     data = {
         "game_map": game_map,
         "coin_db": coin_db,
-        "player": "P1",
     }
     data = pickle.dumps(data)
 
