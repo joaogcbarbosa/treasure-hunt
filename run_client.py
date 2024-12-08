@@ -14,7 +14,6 @@ if __name__ == "__main__":
 
 
             data = c.recv(2048)  # Recebe os dados do servidor
-            # print("Cliente recebeu os dados:", data)  # Debug
             data = pickle.loads(data)
             map_situation: GameMap = data["game_map"]
             player: str = data["player"]
