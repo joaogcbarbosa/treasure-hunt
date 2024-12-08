@@ -35,7 +35,7 @@ def client_runner():
 
 def main():
     # Terminal Template
-    treasure_hunt_title()
+    treasure_hunt_title()  # TODO: deve aparecer para o player
     number_of_players()
     # =================
     nro_players = check_number_of_players()
