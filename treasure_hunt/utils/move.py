@@ -24,3 +24,6 @@ def move_player(
     if new_position in possible_moves:
         x, y = new_position[0], new_position[1]
         game_map.update(x, y, "P1")
+        return
+
+    print("Could not move.")
