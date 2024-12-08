@@ -1,7 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from ..utils.constants import HOST, PORT
-from ..models.map import GameMap
-from random import randint
 from .game import game
 
 def init_coin_db(number_of_players: int) -> dict[str, list]:
@@ -19,7 +17,7 @@ def server_runner(number_of_players: int) -> None:
         print()
         accepted_connections = 0
         coin_db = init_coin_db(number_of_players)
-        
+
         while True:
             if accepted_connections < number_of_players:
                 conn, addr = s.accept()
