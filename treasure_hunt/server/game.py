@@ -37,7 +37,5 @@ def game(number_of_players: int, conn: socket):
     data_from_client = None
     while not isinstance(data_from_client, GameMap):
         conn.sendall(data)  # Envia a instância original do mapa
-        print("Esperando confirmação do cliente...")
         data_from_client = conn.recv(2048)
         data_from_client = pickle.loads(data_from_client)["game_map"]  # Aguarda o ACK do cliente
-        print(f"Servidor recebeu: {data_from_client}")
