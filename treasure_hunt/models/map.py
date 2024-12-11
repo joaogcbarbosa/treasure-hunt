@@ -10,21 +10,21 @@ class GameMap:
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(GameMap, cls).__new__(cls, *args, **kwargs)
-            cls._instance.initialize()
+            cls._instance.__initialize()
         return cls._instance
     
-    def _random_treasure_value(self) -> str:
+    def __random_treasure_value(self) -> str:
         return str(randint(1, 9))
     
     def bounds(self) -> tuple[int, int]:
         return self._HEIGHT - 1, self._WIDTH - 1
 
-    def initialize(self):
+    def __initialize(self):
         self.game_map = [
-            [self._random_treasure_value() for _ in range(4)],
-            [self._random_treasure_value() for _ in range(4)],
-            [self._random_treasure_value() for _ in range(4)],
-            [self._random_treasure_value() for _ in range(4)],
+            [self.__random_treasure_value() for _ in range(4)],
+            [self.__random_treasure_value() for _ in range(4)],
+            [self.__random_treasure_value() for _ in range(4)],
+            [self.__random_treasure_value() for _ in range(4)],
         ]
 
     def display(self) -> str:
