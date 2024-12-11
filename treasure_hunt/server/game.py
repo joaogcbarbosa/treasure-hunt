@@ -29,6 +29,7 @@ def game(number_of_players: int, coin_db: dict[str, list], connections: list[soc
         rnd += 1
 
     for conn in connections:
+        print(conn)
         data = {
             "game_map": game_map,
             "coin_db": coin_db,
