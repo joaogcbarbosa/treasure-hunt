@@ -13,12 +13,7 @@ class GameMap:
     
     def __initialize(self):
         self.game_map = [
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
-            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)] for _ in range(self._WIDTH)
         ]
 
     def __random_treasure_value(self) -> str:
