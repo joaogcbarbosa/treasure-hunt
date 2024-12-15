@@ -2,9 +2,8 @@ from random import randint
 
 class GameMap:
     _instance = None
-    # TODO: map bounds could be set by user?
-    _HEIGHT = 4
-    _WIDTH = 4
+    _HEIGHT = 6
+    _WIDTH = 6
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -12,19 +11,21 @@ class GameMap:
             cls._instance.__initialize()
         return cls._instance
     
-    def __random_treasure_value(self) -> str:
-        return str(randint(1, 9))
-    
-    def bounds(self) -> tuple[int, int]:
-        return self._HEIGHT - 1, self._WIDTH - 1
-
     def __initialize(self):
         self.game_map = [
-            [self.__random_treasure_value() for _ in range(4)],
-            [self.__random_treasure_value() for _ in range(4)],
-            [self.__random_treasure_value() for _ in range(4)],
-            [self.__random_treasure_value() for _ in range(4)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
+            [self.__random_treasure_value() for _ in range(self._HEIGHT)],
         ]
+
+    def __random_treasure_value(self) -> str:
+        return str(randint(1, 9))
+
+    def bounds(self) -> tuple[int, int]:
+        return self._HEIGHT - 1, self._WIDTH - 1
 
     def display(self) -> str:
         result = []
