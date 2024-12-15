@@ -13,7 +13,3 @@ def client(host: str, port: int) -> Generator[socket, Any, Any]:
         print(f"Could not connect: {e}")
     finally:
         client_socket.close()
-
-
-def send_message(msg: str, client: socket) -> None:
-    client.send(msg.encode("utf-8"))
