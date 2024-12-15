@@ -40,7 +40,10 @@ def move_player(
         collect_coin(coin_db, (x, y), game_map, player)
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
         game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
-        game_map.update(x, y, player)  # Jogador se moveu
+        if game_map[x][y] == "X":
+            game_map.update(x, y, player)  # Jogador se moveu
+            # TODO: while TIMEOUT aqui para thread que entrar na sala especial?
+        game_map.update(x, y, player)
         return game_map
 
     print("Could not move.")
