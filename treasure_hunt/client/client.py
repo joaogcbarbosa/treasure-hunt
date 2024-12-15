@@ -1,6 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from typing import Any, Generator
-from time import sleep
 from contextlib import contextmanager
 
 @contextmanager
