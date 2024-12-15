@@ -1,7 +1,11 @@
+from random import choice
+from time import time
 from typing import Literal
 
-from treasure_hunt.utils.converters import string_to_matrix
-from ..models.map import GameMap
+from ..utils.checks import check_possible_moves
+from ..utils.converters import string_to_matrix
+from ..models.map import GameMap, SpecialGameMap
+# from ..server.game_map import special_game_map
 
 def collect_coin(
     coin_db: dict[str, list], 
@@ -41,9 +45,30 @@ def move_player(
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
         game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
         if game_map[x][y] == "X":
-            game_map.update(x, y, player)  # Jogador se moveu
-            # TODO: while TIMEOUT aqui para thread que entrar na sala especial?
+            # global special_game_map
+            # game_map.update(x, y, player)  # Jogador se moveu
+            # move_to_special_map(player, coin_db, special_game_map)
+            pass
+        # else:
         game_map.update(x, y, player)
         return game_map
 
     print("Could not move.")
+
+
+def move_to_special_map(player: str, coin_db: dict[str, list], special_game_map: SpecialGameMap):
+    # Inicia a contagem de tempo no mapa especial
+    start_time = time()
+    while True:
+        print(special_game_map.display())
+        possible_moves, player_pos = check_possible_moves(
+            player, 
+            string_to_matrix(special_game_map.display())
+        )
+        print(f"{player} turn:", end=" ")
+        player_choice = choice(["w", "a", "s", "d"]).upper()
+        move_player(player_choice, player, possible_moves, player_pos, coin_db, special_game_map)
+
+        # Se passar dos 10s, sai do loop
+        if time() - start_time >= 10:
+            break
