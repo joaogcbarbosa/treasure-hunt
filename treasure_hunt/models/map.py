@@ -11,7 +11,7 @@ class GameMap:
             cls._instance.__initialize()
         return cls._instance
     
-    def __initialize(self):
+    def __initialize(self) -> None:
         self.game_map = [
             [self.__random_treasure_value() for _ in range(self._HEIGHT)] for _ in range(self._WIDTH)
         ]
@@ -20,7 +20,7 @@ class GameMap:
     def __random_treasure_value(self) -> str:
         return str(randint(1, 9))
 
-    def __spot_special_room(self):
+    def __spot_special_room(self) -> None:
         x, y = self.bounds()
         self.update(x=randint(0, x), y=randint(0, y), value="X")
 
@@ -33,5 +33,5 @@ class GameMap:
             result.append(" | ".join(row))
         return "\n".join(result) 
 
-    def update(self, x: int, y: int, value: str | int):
+    def update(self, x: int, y: int, value: str | int) -> None:
         self.game_map[x][y] = value
