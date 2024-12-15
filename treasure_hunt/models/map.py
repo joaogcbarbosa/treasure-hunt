@@ -15,9 +15,14 @@ class GameMap:
         self.game_map = [
             [self.__random_treasure_value() for _ in range(self._HEIGHT)] for _ in range(self._WIDTH)
         ]
+        self.__spot_special_room()
 
     def __random_treasure_value(self) -> str:
         return str(randint(1, 9))
+
+    def __spot_special_room(self):
+        x, y = self.bounds()
+        self.update(x=randint(0, x), y=randint(0, y), value="X")
 
     def bounds(self) -> tuple[int, int]:
         return self._HEIGHT - 1, self._WIDTH - 1
