@@ -45,10 +45,20 @@ def move_player(
         if map_situation[x][y] == "X":
             global special_game_map
             game_map.update(x, y, player)  # Jogador se moveu
-            move_to_special_map(player, coin_db, special_game_map)
+            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y))
+            return game_map
         else:
             collect_coin(coin_db, (x, y), game_map, player)
+            total_coins = sum(int(elem) for row in map_situation for elem in row if elem != "X" and elem not in ("P1", "P2", "P3"))
+            if (
+                total_coins == 0 and 
+                isinstance(game_map, GameMap) and not
+                any("X" in row for row in map_situation)
+            ):
+                print("Jogou acabou")
+                sleep(50)
             game_map.update(x, y, player)
+
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
         game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
         return game_map
@@ -56,7 +66,12 @@ def move_player(
     print("Could not move.")
 
 
-def move_to_special_map(player: str, coin_db: dict[str, list], special_game_map: SpecialGameMap):
+def move_to_special_map(
+        player: str,
+        coin_db: dict[str, list],
+        special_game_map: SpecialGameMap,
+        game_map: GameMap,
+        special_position: tuple[int, int]):
     # Spota jogador no mapa especial
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
@@ -79,3 +94,12 @@ def move_to_special_map(player: str, coin_db: dict[str, list], special_game_map:
             break
 
         sleep(1)
+
+    special_map_situation = string_to_matrix(special_game_map.display())
+    for i in range(len(special_map_situation)):
+        for j in range(len(special_map_situation)):
+            if special_map_situation[i][j] == player:
+                special_game_map.update(i, j, "0")
+    total_coins = sum(int(elem) for row in special_map_situation for elem in row if elem not in ("P1", "P2", "P3"))
+    if total_coins != 0:
+        game_map.update(special_position[0], special_position[1], "X")
