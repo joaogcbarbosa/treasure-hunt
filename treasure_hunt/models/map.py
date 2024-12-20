@@ -31,10 +31,13 @@ class GameMap:
         result = []
         for row in self.game_map:
             result.append(" | ".join(row))
-        return "\n".join(result) 
+        return "\n".join(result)
 
     def update(self, x: int, y: int, value: str | int) -> None:
         self.game_map[x][y] = value
+
+    def total_coins(self) -> int:
+        return sum([elem for row in self.game_map for elem in row])
 
 
 class SpecialGameMap:
@@ -67,3 +70,6 @@ class SpecialGameMap:
 
     def update(self, x: int, y: int, value: str | int) -> None:
         self.special_game_map[x][y] = value
+
+    def total_coins(self) -> int:
+        return sum([elem for row in self.game_map for elem in row])
