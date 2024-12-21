@@ -60,7 +60,6 @@ def move_player(
             player_in_special_map = player
             move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
             special_map_semaphore.release()
-            # return game_map
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
@@ -92,8 +91,6 @@ def move_player(
             if player != player_in_special_map:
                 map_semaphore.release()
             # ==================================
-
-        return game_map
 
     print("Could not move.")
 
