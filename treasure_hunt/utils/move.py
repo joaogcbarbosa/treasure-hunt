@@ -55,8 +55,7 @@ def move_player(
                 isinstance(game_map, GameMap) and not
                 any("X" in row for row in map_situation)
             ):
-                print("Jogou acabou")
-                sleep(50)
+                declare_champion(coin_db)
             game_map.update(x, y, player)
 
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
@@ -103,3 +102,9 @@ def move_to_special_map(
     total_coins = sum(int(elem) for row in special_map_situation for elem in row if elem not in ("P1", "P2", "P3"))
     if total_coins != 0:
         game_map.update(special_position[0], special_position[1], "X")
+
+
+def declare_champion(coin_db: dict[str, list]):
+    print("\n")
+    for k, v in coin_db.items():
+        print(f"{k}: {sum(v)} pontos")
