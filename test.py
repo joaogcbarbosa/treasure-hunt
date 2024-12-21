@@ -13,7 +13,6 @@ from treasure_hunt.server.game import spot_players
 from treasure_hunt.server.game_map import game_map
 
 coin_db: dict[str, list] = {}
-player_counter: int = 0
 lock = Lock()
 
 def init_coin_db(number_of_players: int) -> dict[str, list]:
