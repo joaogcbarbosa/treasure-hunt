@@ -1,4 +1,8 @@
 from random import randint
+from abc import ABC, abstractmethod
+
+class Map(ABC):
+    pass
 
 class GameMap:
     _instance = None
