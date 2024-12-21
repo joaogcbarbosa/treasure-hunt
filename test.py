@@ -38,7 +38,7 @@ def client_runner(player: str):
                 possible_moves, player_pos = check_possible_moves(
                     player, string_to_matrix(game_map.display())
                 )
-                # print(f"{player} turn:", end=" ")
+                print(f"{player} turn:", end=" ")
                 player_choice = choice(["w", "a", "s", "d"]).upper()
                 # player_choice = input().upper()
                 move_player(
