@@ -63,7 +63,7 @@ def move_player(
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
-            # Checando se a quantidade de pontos no mapa é igual a zero para finalizar o jogo.
+            # Checando se a quantidade de pontos no mapa principal é igual a zero para finalizar o jogo.
             # =====================================================
             total_coins = sum(
                 int(elem)
@@ -91,8 +91,11 @@ def move_player(
             if player != player_in_special_map:
                 map_semaphore.release()
             # ==================================
-
+        return
     print("Could not move.")
+    if player != player_in_special_map:
+        map_semaphore.release()
+    return
 
 
 def move_to_special_map(
