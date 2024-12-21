@@ -1,5 +1,5 @@
 from random import choice, randint
-from threading import Event
+from threading import Event, BoundedSemaphore
 from time import sleep, time
 from typing import Literal
 
@@ -27,6 +27,9 @@ def move_player(
     coin_db: dict[str, list],
     game_map: GameMap,
     event: Event,
+    map_semaphore: BoundedSemaphore,
+    special_map_semaphore: BoundedSemaphore,
+    player_in_special_map: str,
 ):
     x, y = player_position
 
@@ -46,12 +49,23 @@ def move_player(
         x, y = new_position[0], new_position[1]
         map_situation = string_to_matrix(game_map.display())
         if map_situation[x][y] == "X":
+            # libear semáfaro do mapa principal para outras threads caso o player vá entrar no mapa especial
             global special_game_map
-            game_map.update(x, y, player)  # Jogador se moveu
-            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event)
-            return game_map
+            game_map.update(x, y, player)
+            # Já que o jogador entrará no mapa especial, libera o mapa principal para os restantes
+            # ======================
+            map_semaphore.release()
+            # ======================
+            special_map_semaphore.acquire()
+            player_in_special_map = player
+            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
+            special_map_semaphore.release()
+            # return game_map
         else:
             collect_coin(coin_db, (x, y), game_map, player)
+
+            # Checando se a quantidade de pontos no mapa é igual a zero para finalizar o jogo.
+            # =====================================================
             total_coins = sum(
                 int(elem)
                 for row in map_situation
@@ -65,10 +79,20 @@ def move_player(
             ):
                 declare_champion(coin_db)
                 event.set()
-            game_map.update(x, y, player)
+            # =====================================================
 
-        print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
-        game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
+            print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
+            game_map.update(x, y, player)
+            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
+
+            # Faz a comparação abaixo pois o player que está no mapa especial também usa a função
+            # move_player, então o semáforo do mapa principal só será liberado se não for a thread
+            # do player do mapa especial executando a função
+            # ==================================
+            if player != player_in_special_map:
+                map_semaphore.release()
+            # ==================================
+
         return game_map
 
     print("Could not move.")
@@ -81,6 +105,9 @@ def move_to_special_map(
     game_map: GameMap,
     special_position: tuple[int, int],
     event: Event,
+    map_semaphore: BoundedSemaphore,
+    special_map_semaphore: BoundedSemaphore,
+    player_in_special_map: str,
 ):
     # Spota jogador no mapa especial
     height_bound, width_bound = special_game_map.bounds()
@@ -97,7 +124,7 @@ def move_to_special_map(
         player_choice = choice(["w", "a", "s", "d"]).upper()
         # player_choice = input().upper()
         move_player(
-            player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event
+            player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event, map_semaphore, special_map_semaphore, player_in_special_map
         )
 
         # Se passar dos 10s, sai do loop

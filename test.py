@@ -1,6 +1,6 @@
 from random import choice
 from socket import AF_INET, SOCK_STREAM, socket
-from threading import Event, Lock, Thread
+from threading import Event, BoundedSemaphore, Thread
 from time import sleep
 
 from treasure_hunt.client.client import client
@@ -13,8 +13,10 @@ from treasure_hunt.utils.move import move_player
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
 coin_db: dict[str, list] = {}
-lock = Lock()
+map_semaphore = BoundedSemaphore()
+special_map_semaphore = BoundedSemaphore()
 stop_event = Event()
+player_in_special_map: str = ""
 
 
 def init_coin_db(number_of_players: int) -> dict[str, list]:
@@ -22,32 +24,37 @@ def init_coin_db(number_of_players: int) -> dict[str, list]:
 
 
 def client_runner(player: str):
-    global game_map, coin_db, lock, stop_event
+    global game_map, coin_db, map_semaphore, special_map_semaphore, stop_event, player_in_special_map
     with client(SERVER_HOST, SERVER_PORT):
         sleep(3)  # Tempo para deixar o servidor plotar os players conectados no mapa
         while not stop_event.is_set():
             try:
-                # Região crítica, pois altera a situação do mapa do jogo e do banco de coins
+                # Região crítica, pois altera a situação do mapa do jogo e do banco de coins.
+                # Não há semáforo para o banco de coins pois a proteção da região crítica
+                # pelo semáforo do mapa já protege o banco.
                 # ==================================================
-                with lock:
-                    print(game_map.display())
-                    possible_moves, player_pos = check_possible_moves(
-                        player, string_to_matrix(game_map.display())
-                    )
-                    print(f"{player} turn:", end=" ")
-                    player_choice = choice(["w", "a", "s", "d"]).upper()
-                    # player_choice = input().upper()
-                    move_player(
-                        player_choice,
-                        player,
-                        possible_moves,
-                        player_pos,
-                        coin_db,
-                        game_map,
-                        stop_event,
-                    )
+                map_semaphore.acquire()
+                print(game_map.display())
+                possible_moves, player_pos = check_possible_moves(
+                    player, string_to_matrix(game_map.display())
+                )
+                # print(f"{player} turn:", end=" ")
+                player_choice = choice(["w", "a", "s", "d"]).upper()
+                # player_choice = input().upper()
+                move_player(
+                    player_choice,
+                    player,
+                    possible_moves,
+                    player_pos,
+                    coin_db,
+                    game_map,
+                    stop_event,
+                    map_semaphore,
+                    special_map_semaphore,
+                    player_in_special_map,
+                )
                 # ==================================================
-                sleep(1)
+                sleep(2)
             except Exception as e:
                 print(f"Erro com o client: {e}")
                 break
