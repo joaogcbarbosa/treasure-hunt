@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Event, BoundedSemaphore, Thread
 from time import sleep
@@ -26,7 +26,7 @@ def init_coin_db(number_of_players: int) -> dict[str, list]:
 def client_runner(player: str):
     global game_map, coin_db, map_semaphore, special_map_semaphore, stop_event, player_in_special_map
     with client(SERVER_HOST, SERVER_PORT):
-        sleep(3)  # Tempo para deixar o servidor plotar os players conectados no mapa
+        sleep(5)  # Tempo para deixar o servidor plotar os players conectados no mapa
         while not stop_event.is_set():
             try:
                 # Região crítica, pois altera a situação do mapa do jogo e do banco de coins.
@@ -54,7 +54,7 @@ def client_runner(player: str):
                     player_in_special_map,
                 )
                 # ==================================================
-                sleep(2)
+                sleep(randint(1, 3))
             except Exception as e:
                 print(f"Erro com o client: {e}")
                 break
@@ -77,6 +77,7 @@ def server_runner(number_of_players: int):
                 accepted_connections += 1
                 print(f"{accepted_connections}/{number_of_players}")
                 if accepted_connections == number_of_players:
+                    sleep(1)
                     print("Initializing map.\n")
                     spot_players(number_of_players)
 
@@ -98,3 +99,4 @@ if __name__ == "__main__":
     sleep(3)  # tempo para o servidor iniciar
     for p in players:
         p.start()
+        sleep(1)  # para simular entrada de cada vez de players no servidor
