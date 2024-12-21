@@ -31,8 +31,10 @@ class GameMap:
     def display(self) -> str:
         result = []
         for row in self.game_map:
-            result.append(" | ".join(row))
+            formatted_row = " | ".join(f"{str(cell):>3}" for cell in row)
+            result.append(formatted_row)
         return "\n".join(result)
+
 
     def update(self, x: int, y: int, value: str | int) -> None:
         self.game_map[x][y] = value
@@ -63,8 +65,9 @@ class SpecialGameMap:
     def display(self) -> str:
         result = []
         for row in self.special_game_map:
-            result.append(" | ".join(row))
-        return "\n".join(result) 
+            formatted_row = " | ".join(f"{str(cell):>3}" for cell in row)
+            result.append(formatted_row)
+        return "\n".join(result)
 
     def update(self, x: int, y: int, value: str | int) -> None:
         self.special_game_map[x][y] = value
