@@ -1,6 +1,6 @@
 from random import choice
 from socket import socket, AF_INET, SOCK_STREAM
-from threading import Lock, Thread
+from threading import Lock, Thread, Event
 from time import sleep
 
 from treasure_hunt.client.client import client
@@ -14,16 +14,17 @@ from treasure_hunt.server.game_map import game_map
 
 coin_db: dict[str, list] = {}
 lock = Lock()
+stop_event = Event()
 
 def init_coin_db(number_of_players: int) -> dict[str, list]:
     return {f"P{i}": [] for i in range(1, number_of_players + 1)}
 
 
 def client_runner(player: str):
-    global game_map, coin_db, lock
+    global game_map, coin_db, lock, stop_event
     with client(SERVER_HOST, SERVER_PORT):
         sleep(3)  # Tempo para deixar o servidor plotar os players conectados no mapa
-        while True:
+        while not stop_event.is_set():
             try:
                 # Região crítica, pois altera a situação do mapa do jogo e do banco de coins
                 # ==================================================
@@ -36,7 +37,7 @@ def client_runner(player: str):
                     print(f"{player} turn:", end=" ")
                     player_choice = choice(["w", "a", "s", "d"]).upper()
                     # player_choice = input().upper()
-                    move_player(player_choice, player, possible_moves, player_pos, coin_db, game_map)
+                    move_player(player_choice, player, possible_moves, player_pos, coin_db, game_map, stop_event)
                 # ==================================================
                 sleep(1)
             except Exception as e:
@@ -54,7 +55,7 @@ def server_runner(number_of_players: int):
         s.bind((HOST, PORT))
         s.listen()
         print("Running server...")
-        while True:
+        while not stop_event.is_set():
             if accepted_connections < number_of_players:
                 _, addr = s.accept()
                 print(f"Connection from {addr} accepted")
@@ -77,6 +78,6 @@ if __name__ == "__main__":
     players = [Thread(target=client_runner, args=(f"P{str(i)}",)) for i in range(1, nro_players + 1)]
 
     server.start()
-    sleep(2)  # tempo para o servidor iniciar
+    sleep(3)  # tempo para o servidor iniciar
     for p in players:
         p.start()

@@ -1,6 +1,7 @@
 from random import choice, randint
 from time import sleep, time
 from typing import Literal
+from threading import Event
 
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
@@ -24,6 +25,7 @@ def move_player(
     player_position: tuple[int, int],
     coin_db: dict[str, list],
     game_map: GameMap,
+    event: Event
 ):
     x, y = player_position
 
@@ -45,7 +47,7 @@ def move_player(
         if map_situation[x][y] == "X":
             global special_game_map
             game_map.update(x, y, player)  # Jogador se moveu
-            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y))
+            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event)
             return game_map
         else:
             collect_coin(coin_db, (x, y), game_map, player)
@@ -56,6 +58,7 @@ def move_player(
                 any("X" in row for row in map_situation)
             ):
                 declare_champion(coin_db)
+                event.set()
             game_map.update(x, y, player)
 
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
@@ -70,7 +73,8 @@ def move_to_special_map(
         coin_db: dict[str, list],
         special_game_map: SpecialGameMap,
         game_map: GameMap,
-        special_position: tuple[int, int]):
+        special_position: tuple[int, int],
+        event: Event):
     # Spota jogador no mapa especial
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
@@ -86,7 +90,7 @@ def move_to_special_map(
         print(f"{player} turn:", end=" ")
         player_choice = choice(["w", "a", "s", "d"]).upper()
         # player_choice = input().upper()
-        move_player(player_choice, player, possible_moves, player_pos, coin_db, special_game_map)
+        move_player(player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event)
 
         # Se passar dos 10s, sai do loop
         if time() - start_time >= 10:
