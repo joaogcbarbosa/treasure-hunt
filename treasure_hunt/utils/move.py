@@ -3,7 +3,8 @@ from threading import Event, BoundedSemaphore
 from time import sleep, time
 from typing import Literal
 
-from ..models.map import GameMap, SpecialGameMap
+# from ..models.map import GameMap,SpecialGameMap
+from ..models.map import Map
 from ..server.game_map import special_game_map
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
@@ -12,7 +13,7 @@ from ..utils.converters import string_to_matrix
 def collect_coin(
     coin_db: dict[str, list],
     coin_position: tuple[int, int],
-    game_map: GameMap,
+    game_map: Map,
     player: str,
 ):
     map_situation = string_to_matrix(game_map.display())
@@ -25,7 +26,7 @@ def move_player(
     possible_moves: list[tuple[int]],
     player_position: tuple[int, int],
     coin_db: dict[str, list],
-    game_map: GameMap,
+    game_map: Map,
     event: Event,
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
@@ -73,7 +74,7 @@ def move_player(
             )
             if (
                 total_coins == 0
-                and isinstance(game_map, GameMap)
+                and isinstance(game_map, Map)
                 and not any("X" in row for row in map_situation)
             ):
                 declare_champion(coin_db)
@@ -101,8 +102,8 @@ def move_player(
 def move_to_special_map(
     player: str,
     coin_db: dict[str, list],
-    special_game_map: SpecialGameMap,
-    game_map: GameMap,
+    special_game_map: Map,
+    game_map: Map,
     special_position: tuple[int, int],
     event: Event,
     map_semaphore: BoundedSemaphore,
