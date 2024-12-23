@@ -1,11 +1,11 @@
-from random import choice
-from time import time
+from random import choice, randint
+from time import sleep, time
 from typing import Literal
 
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
 from ..models.map import GameMap, SpecialGameMap
-# from ..server.game_map import special_game_map
+from ..server.game_map import special_game_map
 
 def collect_coin(
     coin_db: dict[str, list], 
@@ -41,22 +41,26 @@ def move_player(
     if new_position in possible_moves:
         former_x, former_y = x, y
         x, y = new_position[0], new_position[1]
-        collect_coin(coin_db, (x, y), game_map, player)
+        map_situation = string_to_matrix(game_map.display())
+        if map_situation[x][y] == "X":
+            global special_game_map
+            game_map.update(x, y, player)  # Jogador se moveu
+            move_to_special_map(player, coin_db, special_game_map)
+        else:
+            collect_coin(coin_db, (x, y), game_map, player)
+            game_map.update(x, y, player)
         print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
         game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
-        if game_map[x][y] == "X":
-            # global special_game_map
-            # game_map.update(x, y, player)  # Jogador se moveu
-            # move_to_special_map(player, coin_db, special_game_map)
-            pass
-        # else:
-        game_map.update(x, y, player)
         return game_map
 
     print("Could not move.")
 
 
 def move_to_special_map(player: str, coin_db: dict[str, list], special_game_map: SpecialGameMap):
+    # Spota jogador no mapa especial
+    height_bound, width_bound = special_game_map.bounds()
+    height, width = randint(0, height_bound), randint(0, width_bound)
+    special_game_map.update(height, width, player)
     # Inicia a contagem de tempo no mapa especial
     start_time = time()
     while True:
@@ -67,8 +71,11 @@ def move_to_special_map(player: str, coin_db: dict[str, list], special_game_map:
         )
         print(f"{player} turn:", end=" ")
         player_choice = choice(["w", "a", "s", "d"]).upper()
+        # player_choice = input().upper()
         move_player(player_choice, player, possible_moves, player_pos, coin_db, special_game_map)
 
         # Se passar dos 10s, sai do loop
         if time() - start_time >= 10:
             break
+
+        sleep(1)
