@@ -22,9 +22,10 @@ def check_available_moves(
 
     positions_copy = positions.copy()
     for p in positions_copy:
-        if p not in map_positions or isinstance(game_map[p[0]][p[1]], str):
-            if game_map[p[0]][p[1]] == "X":  # Sala especial
-                continue
+        if (
+            p not in map_positions 
+            or (isinstance(game_map[p[0]][p[1]], str) and game_map[p[0]][p[1]] != "X")
+        ):
             positions.remove(p)
 
     return positions
