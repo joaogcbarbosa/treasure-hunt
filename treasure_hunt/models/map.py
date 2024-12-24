@@ -2,8 +2,8 @@ from random import randint
 
 class GameMap:
     _instance = None
-    _HEIGHT = 6
-    _WIDTH = 6
+    _HEIGHT = 4
+    _WIDTH = 4
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:

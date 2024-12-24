@@ -8,7 +8,7 @@ from treasure_hunt.utils.checks import check_possible_moves
 from treasure_hunt.utils.move import move_player
 from treasure_hunt.utils.converters import string_to_matrix
 import pickle
-from random import choice
+from random import choice, random
 
 resource_lock: Lock = Lock()
 
@@ -34,7 +34,7 @@ def handle_client():
                     # choice = input(f"{player} turn: ").upper()
                     print(f"{player} turn:", end=" ")
                     player_choice = choice(["w", "a", "s", "d"]).upper()
-                    sleep(2)
+                    # sleep(random())
                     move_player(player_choice, player, possible_moves, player_pos, coin_db, map_situation)
 
                     data = {

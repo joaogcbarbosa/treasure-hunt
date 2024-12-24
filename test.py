@@ -36,9 +36,10 @@ def client_runner(player: str):
                     )
                     print(f"{player} turn:", end=" ")
                     player_choice = choice(["w", "a", "s", "d"]).upper()
+                    # player_choice = input().upper()
                     move_player(player_choice, player, possible_moves, player_pos, coin_db, game_map)
                 # ==================================================
-                sleep(2)
+                sleep(1)
             except Exception as e:
                 print(f"Erro com o client: {e}")
                 break
