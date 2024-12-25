@@ -52,6 +52,7 @@ def move_player(
             # libear semáfaro do mapa principal para outras threads caso o player vá entrar no mapa especial
             global special_game_map
             game_map.update(x, y, player)
+            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
             # Já que o jogador entrará no mapa especial, libera o mapa principal para os restantes
             # ======================
             map_semaphore.release()
