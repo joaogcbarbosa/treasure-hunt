@@ -61,6 +61,7 @@ def move_player(
             player_in_special_map = player
             move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
             special_map_semaphore.release()
+            # TODO: continuar a lógica de saída do mapa especial aqui (transição do player special -> main)
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
