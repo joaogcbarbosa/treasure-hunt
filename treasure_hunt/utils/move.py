@@ -12,6 +12,7 @@ from ..utils.constants import KEYBOARD_OPTIONS
 
 
 queue_lock: Lock = Lock()
+check_semaphore = BoundedSemaphore()
 
 
 def collect_coin(
@@ -22,13 +23,6 @@ def collect_coin(
 ):
     map_situation = string_to_matrix(game_map.display())
     coin_db[player].append(int(map_situation[coin_position[0]][coin_position[1]]))
-
-
-def busy_waiting(special_map_semaphore: BoundedSemaphore):
-    while special_map_semaphore._value == 0:
-        pass  # Espera ocupada
-        if 1: # smth
-            pass
 
 
 def move_player(
@@ -67,19 +61,27 @@ def move_player(
             if special_map_semaphore._value == 0:
                 with queue_lock:
                     special_map_queue.put(player)
-                busy_waiting(special_map_semaphore)
-                with queue_lock:
-                    player_in_special_map = special_map_queue.get()
+                while True:
+                    check_semaphore.acquire()
+                    if special_map_semaphore._value != 0:
+                        next_to_special_map = special_map_queue.get()
+                        special_map_semaphore.acquire()
+                        check_semaphore.release()
+                        break
+                    else:
+                        pass
+                    check_semaphore.release()
+            else:
+                next_to_special_map = player
+                special_map_semaphore.acquire()
 
             game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
             game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial disponível para o restante dos players
 
-
-            special_map_semaphore.acquire()
             map_semaphore.release()  # Já que o jogador já sinalizou com o comando acima que vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
-            player_in_special_map = player  # "Seta" o player que vai entrar no mapa especial
-            is_empty = move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
+            player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial
+            is_empty = move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map)
 
             #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
             if is_empty:
@@ -87,7 +89,23 @@ def move_player(
                     while not special_map_queue.empty():
                         removed_player = special_map_queue.get()
                         print(f"Jogador {removed_player} removido da fila.")
+
             special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
+            
+            # Devolve jogador que estava no mapa especial para o mapa principal
+            # ======================================================
+            map_semaphore.acquire()
+            _break = False
+            for i in range(len(map_situation)):
+                for j in range(len(map_situation)):
+                    if map_situation[i][j] not in ("P1", "P2", "P3"):
+                        game_map.update(i, j, player_in_special_map)
+                        _break = True
+                        break
+                if _break:
+                    break
+            map_semaphore.release()
+            # ======================================================
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
@@ -135,6 +153,7 @@ def move_to_special_map(
     event: Event,
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
+    special_map_queue: Queue,
     player_in_special_map: str,
 ) -> bool:
     # Spota jogador no mapa especial de acordo com os limites
@@ -152,7 +171,7 @@ def move_to_special_map(
         player_choice = choice(KEYBOARD_OPTIONS).upper()
         # player_choice = input().upper()
         move_player(
-            player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event, map_semaphore, special_map_semaphore, player_in_special_map
+            player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map
         )
 
         # Se passar dos 10s, sai do loop
