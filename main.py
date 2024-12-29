@@ -1,6 +1,7 @@
 from random import choice, randint
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Event, BoundedSemaphore, Thread
+from queue import Queue
 from time import sleep
 
 from treasure_hunt.client.client import client
@@ -15,6 +16,7 @@ from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 coin_db: dict[str, list] = {}
 map_semaphore = BoundedSemaphore()
 special_map_semaphore = BoundedSemaphore()
+special_map_queue = Queue(maxsize=2)
 stop_event = Event()
 player_in_special_map: str = ""
 
@@ -24,7 +26,7 @@ def init_coin_db(number_of_players: int) -> dict[str, list]:
 
 
 def client_runner(player: str):
-    global game_map, coin_db, map_semaphore, special_map_semaphore, stop_event, player_in_special_map
+    global game_map, coin_db, map_semaphore, special_map_semaphore, special_map_queue, stop_event, player_in_special_map
     with client(SERVER_HOST, SERVER_PORT):
         sleep(5)  # Tempo para deixar o servidor plotar os players conectados no mapa
         while not stop_event.is_set():
@@ -51,6 +53,7 @@ def client_runner(player: str):
                     stop_event,
                     map_semaphore,
                     special_map_semaphore,
+                    special_map_queue,
                     player_in_special_map,
                 )
                 # ==================================================
