@@ -1,13 +1,17 @@
 from random import choice, randint
-from threading import Event, BoundedSemaphore
+from threading import Event, BoundedSemaphore, Lock
 from time import sleep, time
 from typing import Literal
+from queue import Queue
 
 from ..models.map import GameMap,SpecialGameMap
 from ..server.game_map import special_game_map
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
 from ..utils.constants import KEYBOARD_OPTIONS
+
+
+queue_lock: Lock = Lock()
 
 
 def collect_coin(
@@ -20,6 +24,13 @@ def collect_coin(
     coin_db[player].append(int(map_situation[coin_position[0]][coin_position[1]]))
 
 
+def busy_waiting(special_map_semaphore: BoundedSemaphore):
+    while special_map_semaphore._value == 0:
+        pass  # Espera ocupada
+        if 1: # smth
+            pass
+
+
 def move_player(
     choice: Literal["W", "A", "S", "D"],
     player: str,
@@ -30,6 +41,7 @@ def move_player(
     event: Event,
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
+    special_map_queue: Queue,
     player_in_special_map: str,
 ):
     x, y = player_position
@@ -50,18 +62,32 @@ def move_player(
         x, y = new_position[0], new_position[1]
         map_situation = string_to_matrix(game_map.display())
         if map_situation[x][y] == "X":
-            # libear semáfaro do mapa principal para outras threads caso o player vá entrar no mapa especial
             global special_game_map
+
+            if special_map_semaphore._value == 0:
+                with queue_lock:
+                    special_map_queue.put(player)
+                busy_waiting(special_map_semaphore)
+                with queue_lock:
+                    player_in_special_map = special_map_queue.get()
+
             game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
             game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial disponível para o restante dos players
+
 
             special_map_semaphore.acquire()
             map_semaphore.release()  # Já que o jogador já sinalizou com o comando acima que vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
             player_in_special_map = player  # "Seta" o player que vai entrar no mapa especial
-            move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
+            is_empty = move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
+
+            #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
+            if is_empty:
+                with queue_lock:
+                    while not special_map_queue.empty():
+                        removed_player = special_map_queue.get()
+                        print(f"Jogador {removed_player} removido da fila.")
             special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
-            # TODO: continuar a lógica de saída do mapa especial aqui (transição do player special -> main)
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
@@ -110,7 +136,7 @@ def move_to_special_map(
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
     player_in_special_map: str,
-):
+) -> bool:
     # Spota jogador no mapa especial de acordo com os limites
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
@@ -151,9 +177,10 @@ def move_to_special_map(
     )
     if total_coins == 0:
         game_map.update(special_position[0], special_position[1], "0")
+        return True
     #  =============================================================================================
+    return False
 
-    # TODO: TRATAR CASO HOUVESSEM JOGADORES NA FILA PARA ACESSAR O MAPA ESPECIAL MAS O JOGADOR QUE ANTES ESTAVA ESGOTOU OS RECURSOS
 
 def declare_champion(coin_db: dict[str, list]):
     print("\n")
