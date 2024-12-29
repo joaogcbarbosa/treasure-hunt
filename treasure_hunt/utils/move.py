@@ -53,15 +53,14 @@ def move_player(
             # libear semáfaro do mapa principal para outras threads caso o player vá entrar no mapa especial
             global special_game_map
             game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
-            game_map.update(x, y, "X")
-            # Já que o jogador entrará no mapa especial, libera o mapa principal para os restantes
-            # ======================
-            map_semaphore.release()
-            # ======================
+            game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial disponível para o restante dos players
+
             special_map_semaphore.acquire()
-            player_in_special_map = player
+            map_semaphore.release()  # Já que o jogador já sinalizou com o comando acima que vai entrar no mapa especial, libera o mapa principal para o restante dos players
+
+            player_in_special_map = player  # "Seta" o player que vai entrar no mapa especial
             move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, player_in_special_map)
-            special_map_semaphore.release()
+            special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
             # TODO: continuar a lógica de saída do mapa especial aqui (transição do player special -> main)
         else:
             collect_coin(coin_db, (x, y), game_map, player)
@@ -112,7 +111,7 @@ def move_to_special_map(
     special_map_semaphore: BoundedSemaphore,
     player_in_special_map: str,
 ):
-    # Spota jogador no mapa especial
+    # Spota jogador no mapa especial de acordo com os limites
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
     special_game_map.update(height, width, player)
@@ -136,17 +135,25 @@ def move_to_special_map(
 
         sleep(1)
 
+    #  Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, pois se parou em cima, coletou a pontuação daquela coordenada
+    #  ==================================================================
     special_map_situation = string_to_matrix(special_game_map.display())
     for i in range(len(special_map_situation)):
         for j in range(len(special_map_situation)):
             if special_map_situation[i][j] == player:
                 special_game_map.update(i, j, "0")
+    #  ==================================================================
+
+    #  Checa a pontuação total restante no mapa especial. Se não houver mais pontos, fecha o mapa especial trocando a coordenada dele no mapa principal por zero
+    #  =============================================================================================
     total_coins = sum(
         int(elem) for row in special_map_situation for elem in row if elem not in ("P1", "P2", "P3")
     )
-    if total_coins != 0:
-        game_map.update(special_position[0], special_position[1], "X")
+    if total_coins == 0:
+        game_map.update(special_position[0], special_position[1], "0")
+    #  =============================================================================================
 
+    # TODO: TRATAR CASO HOUVESSEM JOGADORES NA FILA PARA ACESSAR O MAPA ESPECIAL MAS O JOGADOR QUE ANTES ESTAVA ESGOTOU OS RECURSOS
 
 def declare_champion(coin_db: dict[str, list]):
     print("\n")
