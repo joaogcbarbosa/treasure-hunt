@@ -7,6 +7,7 @@ from ..models.map import GameMap,SpecialGameMap
 from ..server.game_map import special_game_map
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
+from ..utils.constants import KEYBOARD_OPTIONS
 
 
 def collect_coin(
@@ -123,7 +124,7 @@ def move_to_special_map(
             player, string_to_matrix(special_game_map.display())
         )
         print(f"{player} turn:", end=" ")
-        player_choice = choice(["w", "a", "s", "d"]).upper()
+        player_choice = choice(KEYBOARD_OPTIONS).upper()
         # player_choice = input().upper()
         move_player(
             player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event, map_semaphore, special_map_semaphore, player_in_special_map

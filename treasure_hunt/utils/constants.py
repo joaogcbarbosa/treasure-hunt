@@ -2,3 +2,4 @@ HOST, PORT = "127.0.0.1", 5050
 SERVER_HOST, SERVER_PORT = HOST, PORT
 MAX_PLAYERS = 3
 MIN_PLAYERS = 1  # setting one to test
+KEYBOARD_OPTIONS = ["W", "A", "S", "D"]
