@@ -24,6 +24,25 @@ def collect_coin(
     coin_db[player].append(int(map_situation[coin_position[0]][coin_position[1]]))
 
 
+def player_back_to_map(
+    map_semaphore: BoundedSemaphore,
+    map_situation: list[list],
+    game_map: GameMap,
+    player_in_special_map: str,
+):
+    map_semaphore.acquire()
+    _break = False
+    for i in range(len(map_situation)):
+        for j in range(len(map_situation)):
+            if map_situation[i][j] not in ("P1", "P2", "P3"):
+                game_map.update(i, j, player_in_special_map)
+                _break = True
+                break
+        if _break:
+            break
+    map_semaphore.release()
+
+
 def handle_special_map_queue(
     special_map_queue: Queue, 
     map_semaphore: BoundedSemaphore, 
@@ -45,6 +64,28 @@ def handle_special_map_queue(
             break
         check_semaphore.release()
     return next_to_special_map
+
+
+def get_total_coins(map_situation: list[list]):
+    return sum(
+        int(elem)
+        for row in map_situation
+        for elem in row
+        if elem != "X" and elem not in ("P1", "P2", "P3")
+    )
+
+
+def update_map(
+    game_map: GameMap | SpecialGameMap, 
+    former_x: int, 
+    former_y: int, 
+    new_x: int, 
+    new_y: int, 
+    value: str,  # "X" or player
+):
+
+    game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava e substitui por zero
+    game_map.update(new_x, new_y, value)  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
 
 
 def move_player(
@@ -92,8 +133,9 @@ def move_player(
                 next_to_special_map = player
                 special_map_semaphore.acquire()
 
-            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava e substitui por zero
-            game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
+            # Jogador coletou a pontuação de onde estava, substitui por zero
+            # e simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
+            update_map(game_map, former_x, former_y, x, y, "X")
 
             map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
@@ -113,17 +155,7 @@ def move_player(
 
             # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
             # ======================================================
-            map_semaphore.acquire()
-            _break = False
-            for i in range(len(map_situation)):
-                for j in range(len(map_situation)):
-                    if map_situation[i][j] not in ("P1", "P2", "P3"):
-                        game_map.update(i, j, player_in_special_map)
-                        _break = True
-                        break
-                if _break:
-                    break
-            map_semaphore.release()
+            player_back_to_map(map_semaphore, map_situation, game_map, player_in_special_map)
             # ======================================================
             special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
         else:
@@ -131,12 +163,7 @@ def move_player(
 
             # Checando se a quantidade de pontos no mapa principal é igual a zero para finalizar o jogo.
             # =====================================================
-            total_coins = sum(
-                int(elem)
-                for row in map_situation
-                for elem in row
-                if elem != "X" and elem not in ("P1", "P2", "P3")
-            )
+            total_coins = get_total_coins(map_situation)
             if (
                 total_coins == 0
                 and isinstance(game_map, GameMap)
@@ -147,8 +174,9 @@ def move_player(
             # =====================================================
             else:
                 print(f"Player {player} got {sum(coin_db[player])} points.")
-                game_map.update(x, y, player)
-                game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
+
+                # Jogador coletou a pontuação de onde estava e se move
+                update_map(game_map, former_x, former_y, x, y, player)
 
                 # Faz a comparação abaixo pois o player que está no mapa especial também usa a função
                 # move_player, então o semáforo do mapa principal só será liberado se não for a thread
