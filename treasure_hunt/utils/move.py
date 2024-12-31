@@ -125,7 +125,7 @@ def handle_movement(
         map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
         player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial)
-        move_to_special_map(
+        play_special(
             player,
             coin_db,
             special_game_map,
@@ -171,7 +171,8 @@ def handle_movement(
                 map_semaphore.release()
             # ==================================
 
-def move_player(
+
+def play(
     choice: Literal["W", "A", "S", "D"],
     player: str,
     possible_moves: list[tuple[int]],
@@ -206,7 +207,7 @@ def move_player(
             map_semaphore.release()
 
 
-def move_to_special_map(
+def play_special(
     player: str,
     coin_db: dict[str, list],
     special_game_map: SpecialGameMap,
@@ -232,7 +233,7 @@ def move_to_special_map(
         print(f"{player} turn:", end=" ")
         player_choice = choice(KEYBOARD_OPTIONS).upper()
         # player_choice = input().upper()
-        move_player(
+        play(
             player_choice,
             player,
             possible_moves,

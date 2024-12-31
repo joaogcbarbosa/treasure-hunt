@@ -10,7 +10,7 @@ from treasure_hunt.server.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players, check_possible_moves
 from treasure_hunt.utils.constants import HOST, KEYBOARD_OPTIONS, PORT, SERVER_HOST, SERVER_PORT, MAX_PLAYERS
 from treasure_hunt.utils.converters import string_to_matrix
-from treasure_hunt.utils.move import move_player
+from treasure_hunt.utils.move import play
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
 game_map = GameMap()
@@ -45,7 +45,7 @@ def client_runner(player: str):
                 print(f"{player} turn:", end=" ")
                 player_choice = choice(KEYBOARD_OPTIONS).upper()
                 # player_choice = input().upper()
-                move_player(
+                play(
                     player_choice,
                     player,
                     possible_moves,
