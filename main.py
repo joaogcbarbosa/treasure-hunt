@@ -8,7 +8,7 @@ from treasure_hunt.client.client import client
 from treasure_hunt.models.map import GameMap
 from treasure_hunt.server.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players, check_possible_moves
-from treasure_hunt.utils.constants import HOST, KEYBOARD_OPTIONS, PORT, SERVER_HOST, SERVER_PORT
+from treasure_hunt.utils.constants import HOST, KEYBOARD_OPTIONS, PORT, SERVER_HOST, SERVER_PORT, MAX_PLAYERS
 from treasure_hunt.utils.converters import string_to_matrix
 from treasure_hunt.utils.move import move_player
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
@@ -17,7 +17,7 @@ game_map = GameMap()
 coin_db: dict[str, list] = {}
 map_semaphore = BoundedSemaphore()
 special_map_semaphore = BoundedSemaphore()
-special_map_queue = Queue(maxsize=2)
+special_map_queue = Queue(maxsize=MAX_PLAYERS - 1)
 stop_event = Event()
 player_in_special_map: str = ""
 
@@ -36,6 +36,7 @@ def client_runner(player: str):
                 # Não há semáforo para o banco de coins pois a proteção da região crítica
                 # pelo semáforo do mapa já protege o banco.
                 # ==================================================
+                sleep(1)
                 map_semaphore.acquire()
                 print(game_map.display())
                 possible_moves, player_pos = check_possible_moves(
@@ -58,7 +59,7 @@ def client_runner(player: str):
                     player_in_special_map,
                 )
                 # ==================================================
-                sleep(randint(1, 3))
+                sleep(2)
             except Exception as e:
                 print(f"Erro com o client: {e}")
                 break
