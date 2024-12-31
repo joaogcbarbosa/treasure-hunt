@@ -5,12 +5,12 @@ from typing import Literal
 from queue import Queue
 
 from ..models.map import GameMap,SpecialGameMap
-from ..server.game_map import special_game_map
 from ..utils.checks import check_possible_moves
 from ..utils.converters import string_to_matrix
 from ..utils.constants import KEYBOARD_OPTIONS
 
 
+special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
 check_semaphore = BoundedSemaphore()
 
@@ -55,44 +55,42 @@ def move_player(
         former_x, former_y = x, y
         x, y = new_position[0], new_position[1]
         map_situation = string_to_matrix(game_map.display())
+
+        # Se a posição escolhida pelo jogador for o mapa especial
         if map_situation[x][y] == "X":
             global special_game_map
 
-            if special_map_semaphore._value == 0:
+            # Bloco de espera ocupada para entrar no mapa especial
+            # ========================================================
+            if special_map_semaphore._value == 0:  # Se já tiver alguém no mapa especial
+                map_semaphore.release()  # Jogadores que entram para a fila do mapa especial ficam em espera ocupada, então param de alterar o mapa principal
                 with queue_lock:
-                    special_map_queue.put(player)
+                    special_map_queue.put(player)  # Põe jogador na fila para o mapa especial
                 while True:
-                    check_semaphore.acquire()
+                    check_semaphore.acquire()  # Semáforo para uma thread de cada vez checar se o semáforo do mapa especial foi liberado
                     if special_map_semaphore._value != 0:
-                        next_to_special_map = special_map_queue.get()
+                        next_to_special_map = special_map_queue.get()  # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
+                        map_semaphore.acquire()  # Faz acquire para o mapa principal para coletar a pontuação de onde estava e realizar o movimento de entrada no mapa especial
                         special_map_semaphore.acquire()
                         check_semaphore.release()
                         break
-                    else:
-                        pass
                     check_semaphore.release()
+            # ========================================================
             else:
+                # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
                 next_to_special_map = player
                 special_map_semaphore.acquire()
 
-            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
-            game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial disponível para o restante dos players
+            collect_coin(coin_db, (former_x, former_y), game_map, player)  # Coleta a pontuação de onde estava antes de entrar no mapa especial
+            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava e substitui por zero
+            game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
 
-            map_semaphore.release()  # Já que o jogador já sinalizou com o comando acima que vai entrar no mapa especial, libera o mapa principal para o restante dos players
+            map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
             player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial
             is_empty = move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map)
 
-            #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
-            if is_empty:
-                with queue_lock:
-                    while not special_map_queue.empty():
-                        removed_player = special_map_queue.get()
-                        print(f"Jogador {removed_player} removido da fila.")
-
-            special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
-            
-            # Devolve jogador que estava no mapa especial para o mapa principal
+            # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
             # ======================================================
             map_semaphore.acquire()
             _break = False
@@ -106,6 +104,17 @@ def move_player(
                     break
             map_semaphore.release()
             # ======================================================
+
+            #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
+            # ==============================================================
+            if is_empty:
+                with queue_lock:
+                    while not special_map_queue.empty():
+                        removed_player = special_map_queue.get()
+                        print(f"Player {removed_player} removed from queue.")
+            # ==============================================================
+
+            special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
         else:
             collect_coin(coin_db, (x, y), game_map, player)
 
@@ -126,7 +135,7 @@ def move_player(
                 event.set()
             # =====================================================
 
-            print(f"Jogador {player} coletou {sum(coin_db[player])} pontos.")
+            print(f"Player {player} got {sum(coin_db[player])} points.")
             game_map.update(x, y, player)
             game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava
 
