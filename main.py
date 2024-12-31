@@ -5,14 +5,15 @@ from queue import Queue
 from time import sleep
 
 from treasure_hunt.client.client import client
+from treasure_hunt.models.map import GameMap
 from treasure_hunt.server.game import spot_players
-from treasure_hunt.server.game_map import game_map
 from treasure_hunt.utils.checks import check_number_of_players, check_possible_moves
 from treasure_hunt.utils.constants import HOST, PORT, SERVER_HOST, SERVER_PORT, KEYBOARD_OPTIONS
 from treasure_hunt.utils.converters import string_to_matrix
 from treasure_hunt.utils.move import move_player
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
+game_map = GameMap()
 coin_db: dict[str, list] = {}
 map_semaphore = BoundedSemaphore()
 special_map_semaphore = BoundedSemaphore()
@@ -64,7 +65,7 @@ def client_runner(player: str):
 
 
 def server_runner(number_of_players: int):
-    global coin_db
+    global coin_db, game_map
 
     coin_db = init_coin_db(number_of_players)
     accepted_connections: int = 0
@@ -82,7 +83,7 @@ def server_runner(number_of_players: int):
                 if accepted_connections == number_of_players:
                     sleep(1)
                     print("Initializing map.\n")
-                    spot_players(number_of_players)
+                    spot_players(number_of_players, game_map)
 
 
 if __name__ == "__main__":
