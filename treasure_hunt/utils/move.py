@@ -84,11 +84,26 @@ def update_map(
     value: str,  # "X" or player
 ):
 
-    game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava e substitui por zero
-    game_map.update(new_x, new_y, value)  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
+    game_map.update(former_x, former_y, "0")
+    game_map.update(new_x, new_y, value)
 
 
-def handle_movement():
+def handle_movement(
+    player: str,
+    player_in_special_map: str,
+    game_map: GameMap | SpecialGameMap,
+    coin_db: dict[str, list[int]],
+    map_situation: list[list],
+    new_coordinates: tuple[int, int],
+    former_coordinates: tuple[int, int],
+    map_semaphore: BoundedSemaphore,
+    special_map_semaphore: BoundedSemaphore,
+    special_map_queue: Queue,
+    event: Event,
+):
+    x, y = new_coordinates[0], new_coordinates[1]
+    former_x, former_y = former_coordinates[0], former_coordinates[1]
+
     # Se a posição escolhida pelo jogador for o mapa especial
     if map_situation[x][y] == "X":
         global special_game_map
@@ -96,7 +111,7 @@ def handle_movement():
         # Bloco de espera ocupada para entrar no mapa especial
         # ========================================================
         if special_map_semaphore._value == 0:  # Se já tiver alguém no mapa especial
-            next_to_special_map = handle_special_map_queue(special_map_queue, player, map_semaphore, special_map_semaphore)
+            next_to_special_map = handle_special_map_queue(special_map_queue,  map_semaphore, special_map_semaphore, player)
         # ========================================================
         else:
             # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
@@ -180,13 +195,11 @@ def move_player(
 
     dx, dy = deltas[choice]
 
-    new_position = (x + dx, y + dy)
+    new_player_position = (x + dx, y + dy)
 
-    if new_position in possible_moves:
-        former_x, former_y = x, y
-        x, y = new_position[0], new_position[1]
+    if new_player_position in possible_moves:
         map_situation = string_to_matrix(game_map.display())
-        handle_movement()
+        handle_movement(player, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue, event)
     else:
         print("Could not move.")
         if player != player_in_special_map:
