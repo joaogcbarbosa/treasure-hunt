@@ -1,6 +1,7 @@
-from socket import socket, AF_INET, SOCK_STREAM
-from typing import Any, Generator
 from contextlib import contextmanager
+from socket import AF_INET, SOCK_STREAM, socket
+from typing import Any, Generator
+
 
 @contextmanager
 def client(host: str, port: int) -> Generator[socket, Any, Any]:

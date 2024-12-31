@@ -1,14 +1,13 @@
+from queue import Queue
 from random import choice, randint
-from threading import Event, BoundedSemaphore, Lock
+from threading import BoundedSemaphore, Event, Lock
 from time import sleep, time
 from typing import Literal
-from queue import Queue
 
-from ..models.map import GameMap,SpecialGameMap
+from ..models.map import GameMap, SpecialGameMap
 from ..utils.checks import check_possible_moves
-from ..utils.converters import string_to_matrix
 from ..utils.constants import KEYBOARD_OPTIONS
-
+from ..utils.converters import string_to_matrix
 
 special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
@@ -69,7 +68,9 @@ def move_player(
                 while True:
                     check_semaphore.acquire()  # Semáforo para uma thread de cada vez checar se o semáforo do mapa especial foi liberado
                     if special_map_semaphore._value != 0:
-                        next_to_special_map = special_map_queue.get()  # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
+                        next_to_special_map = (
+                            special_map_queue.get()
+                        )  # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
                         map_semaphore.acquire()  # Faz acquire para o mapa principal para coletar a pontuação de onde estava e realizar o movimento de entrada no mapa especial
                         special_map_semaphore.acquire()
                         check_semaphore.release()
@@ -81,14 +82,33 @@ def move_player(
                 next_to_special_map = player
                 special_map_semaphore.acquire()
 
-            collect_coin(coin_db, (former_x, former_y), game_map, player)  # Coleta a pontuação de onde estava antes de entrar no mapa especial
-            game_map.update(former_x, former_y, "0")  # Jogador coletou a pontuação de onde estava e substitui por zero
-            game_map.update(x, y, "X")  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
+            collect_coin(
+                coin_db, (former_x, former_y), game_map, player
+            )  # Coleta a pontuação de onde estava antes de entrar no mapa especial
+            game_map.update(
+                former_x, former_y, "0"
+            )  # Jogador coletou a pontuação de onde estava e substitui por zero
+            game_map.update(
+                x, y, "X"
+            )  # Simula a entrada do player no mapa especial, "sumindo" com ele do mapa principal e deixando o mapa especial ("X") disponível para o restante dos players
 
             map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
-            player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial
-            is_empty = move_to_special_map(player, coin_db, special_game_map, game_map, (x, y), event, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map)
+            player_in_special_map = (
+                next_to_special_map  # "Seta" o player que vai entrar no mapa especial
+            )
+            is_empty = move_to_special_map(
+                player,
+                coin_db,
+                special_game_map,
+                game_map,
+                (x, y),
+                event,
+                map_semaphore,
+                special_map_semaphore,
+                special_map_queue,
+                player_in_special_map,
+            )
 
             # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
             # ======================================================
@@ -180,7 +200,17 @@ def move_to_special_map(
         player_choice = choice(KEYBOARD_OPTIONS).upper()
         # player_choice = input().upper()
         move_player(
-            player_choice, player, possible_moves, player_pos, coin_db, special_game_map, event, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map
+            player_choice,
+            player,
+            possible_moves,
+            player_pos,
+            coin_db,
+            special_game_map,
+            event,
+            map_semaphore,
+            special_map_semaphore,
+            special_map_queue,
+            player_in_special_map,
         )
 
         # Se passar dos 10s, sai do loop

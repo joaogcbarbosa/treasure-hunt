@@ -22,9 +22,8 @@ def check_available_moves(
 
     positions_copy = positions.copy()
     for p in positions_copy:
-        if (
-            p not in map_positions 
-            or (isinstance(game_map[p[0]][p[1]], str) and game_map[p[0]][p[1]] != "X")
+        if p not in map_positions or (
+            isinstance(game_map[p[0]][p[1]], str) and game_map[p[0]][p[1]] != "X"
         ):
             positions.remove(p)
 
@@ -44,7 +43,9 @@ def check_player_position(game_map: list[list[Union[int, str]]], player: str) ->
     return x, y
 
 
-def check_possible_moves(player: str, game_map: list[list[Union[int, str]]]) -> tuple[list[tuple[int]], tuple[int, int]]:
+def check_possible_moves(
+    player: str, game_map: list[list[Union[int, str]]]
+) -> tuple[list[tuple[int]], tuple[int, int]]:
     player_pos = check_player_position(game_map, player)
     x, y = player_pos
     surrounding_positions = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]

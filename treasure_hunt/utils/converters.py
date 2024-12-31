@@ -11,10 +11,13 @@ def string_to_matrix(input_string: str) -> list[list]:
     """
     # Divide a string em linhas
     rows = input_string.strip().split("\n")
-    
+
     matrix = [
-        [int(value.strip()) if value.strip().isdigit() else value.strip() for value in row.split("|")]
+        [
+            int(value.strip()) if value.strip().isdigit() else value.strip()
+            for value in row.split("|")
+        ]
         for row in rows
     ]
-    
+
     return matrix

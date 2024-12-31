@@ -6,6 +6,7 @@ from treasure_hunt.utils.converters import string_to_matrix
 rnd = 0
 occupied_spots = []
 
+
 def spot_players(number_of_players: int, game_map: GameMap) -> None:
     global occupied_spots
     for i in range(1, number_of_players + 1):

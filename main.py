@@ -1,14 +1,14 @@
+from queue import Queue
 from random import choice, randint
 from socket import AF_INET, SOCK_STREAM, socket
-from threading import Event, BoundedSemaphore, Thread
-from queue import Queue
+from threading import BoundedSemaphore, Event, Thread
 from time import sleep
 
 from treasure_hunt.client.client import client
 from treasure_hunt.models.map import GameMap
 from treasure_hunt.server.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players, check_possible_moves
-from treasure_hunt.utils.constants import HOST, PORT, SERVER_HOST, SERVER_PORT, KEYBOARD_OPTIONS
+from treasure_hunt.utils.constants import HOST, KEYBOARD_OPTIONS, PORT, SERVER_HOST, SERVER_PORT
 from treasure_hunt.utils.converters import string_to_matrix
 from treasure_hunt.utils.move import move_player
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
