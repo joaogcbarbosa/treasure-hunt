@@ -3,6 +3,7 @@ from queue import Queue
 from random import choice, randint
 from threading import BoundedSemaphore, Lock
 from time import sleep, time
+from typing import Literal
 
 from ..server.game import spot_players
 
@@ -88,7 +89,7 @@ def update_map(
     former_y: int, 
     new_x: int, 
     new_y: int, 
-    value: str,  # "X" or player
+    value: Literal["X", "P1", "P2", "P3"],
 ):
 
     game_map.update(former_x, former_y, "0")
