@@ -3,7 +3,8 @@ from queue import Queue
 from random import choice, randint
 from threading import BoundedSemaphore, Lock
 from time import sleep, time
-from typing import Literal
+
+from ..utils.templates import show_map
 
 from ..models.map import GameMap, SpecialGameMap
 from ..utils.checks import check_possible_moves
@@ -190,14 +191,7 @@ def play(
     if isinstance(game_map, GameMap):
         map_semaphore.acquire()
 
-    if isinstance(game_map, GameMap):
-        print("======================")
-        print(game_map.display())
-        print("======================")
-    else:
-        print("=*=*=*=*=*=*=*=*=*=*=*")
-        print(game_map.display())
-        print("=*=*=*=*=*=*=*=*=*=*=*")
+    show_map(game_map)
 
     map_situation = string_to_matrix(game_map.display())
     possible_moves, player_position = check_possible_moves(player, map_situation)

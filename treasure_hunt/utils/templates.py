@@ -1,3 +1,6 @@
+from treasure_hunt.models.map import GameMap, SpecialGameMap
+
+
 def header():
     print("\n" + "=" * 40)
 
@@ -32,3 +35,14 @@ def number_of_players():
 
 def number_of_players_warn():
     print("Please select a possible number of players.")
+
+
+def show_map(game_map: GameMap | SpecialGameMap) -> None:
+    if isinstance(game_map, GameMap):
+        print("======================")
+        print(game_map.display())
+        print("======================")
+        return
+    print("=*=*=*=*=*=*=*=*=*=*=*")
+    print(game_map.display())
+    print("=*=*=*=*=*=*=*=*=*=*=*")
