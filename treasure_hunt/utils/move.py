@@ -4,12 +4,13 @@ from random import choice, randint
 from threading import BoundedSemaphore, Lock
 from time import sleep, time
 
+from ..server.game import spot_players
+
 from ..utils.templates import show_map
 
 from ..models.map import GameMap, SpecialGameMap
 from ..utils.checks import check_possible_moves
 from ..utils.constants import KEYBOARD_OPTIONS
-from ..utils.converters import string_to_matrix
 from ..utils.logger import write_log
 
 special_game_map = SpecialGameMap()
@@ -140,7 +141,6 @@ def handle_movement(
         )
 
         # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
-        # ======================================================
         player_back_to_map(map_semaphore, game_map, player_in_special_map)
         special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
         write_log(f"{player_in_special_map} SAINDO DO MAPA ESPECIAL")
@@ -228,10 +228,8 @@ def play_special(
     special_map_queue: Queue,
     player_in_special_map: str,
 ):
-    # Spota jogador no mapa especial de acordo com os limites
-    height_bound, width_bound = special_game_map.bounds()
-    height, width = randint(0, height_bound), randint(0, width_bound)
-    special_game_map.update(height, width, player)
+    # Spota jogador no mapa especial
+    spot_players([player], special_game_map)
     
     # Inicia a contagem de tempo no mapa especial
     start_time = time()
