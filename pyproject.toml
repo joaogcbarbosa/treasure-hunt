@@ -8,10 +8,6 @@ maintainers = [
   {name = "João Gabriel de Carvalho Barbosa", email = "joaogcb29@gmail.com"},
 ]
 
-dependencies = [
-    "python-dotenv",
-]   
-
 [project.optional-dependencies]
 dev = [
     "black",
