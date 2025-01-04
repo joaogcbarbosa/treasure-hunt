@@ -1,4 +1,4 @@
-from constants import LOGGER_FILE_PATH
+from .constants import LOGGER_FILE_PATH
 
 
 def write_log(msg: str) -> None:
