@@ -1,0 +1,1 @@
+As dependências listadas no pyproject.toml foram apenas para desenvolvimento (formatação do código)
