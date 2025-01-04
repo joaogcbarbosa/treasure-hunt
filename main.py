@@ -1,15 +1,13 @@
 from queue import Queue
-from random import choice, randint
 from socket import AF_INET, SOCK_STREAM, socket
-from threading import BoundedSemaphore, Event, Thread
+from threading import BoundedSemaphore, Thread
 from time import sleep
 
 from treasure_hunt.client.client import client
 from treasure_hunt.models.map import GameMap
 from treasure_hunt.server.game import spot_players
-from treasure_hunt.utils.checks import check_number_of_players, check_possible_moves
-from treasure_hunt.utils.constants import HOST, KEYBOARD_OPTIONS, PORT, SERVER_HOST, SERVER_PORT, MAX_PLAYERS
-from treasure_hunt.utils.converters import string_to_matrix
+from treasure_hunt.utils.checks import check_number_of_players
+from treasure_hunt.utils.constants import HOST, PORT, SERVER_HOST, SERVER_PORT, MAX_PLAYERS
 from treasure_hunt.utils.move import play, declare_champion, get_total_coins
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
@@ -59,10 +57,11 @@ def client_runner(player: str):
                 break
 
 
-def server_runner(number_of_players: int):
+def server_runner(clients: list[str]):
     global coin_db, game_map, connections
 
     game_map = GameMap()
+    number_of_players = len(clients)
     coin_db = init_coin_db(number_of_players)
     connections = 0
 
@@ -83,7 +82,7 @@ def server_runner(number_of_players: int):
                 if connections == number_of_players:
                     sleep(0.5)
                     print("Initializing map.\n")
-                    spot_players(number_of_players, game_map)
+                    spot_players(clients, game_map)
                     sleep(1)
 
 
@@ -94,8 +93,9 @@ if __name__ == "__main__":
     # =================
 
     nro_players = check_number_of_players()
+    clients = [f"P{i}" for i in range(1, nro_players + 1)]
 
-    server = Thread(target=server_runner, args=(nro_players,))
+    server = Thread(target=server_runner, args=(clients,))
     players = [
         Thread(target=client_runner, args=(f"P{str(i)}",)) for i in range(1, nro_players + 1)
     ]
