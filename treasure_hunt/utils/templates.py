@@ -16,15 +16,6 @@ def treasure_hunt_title():
     print("🪙 Prepare-se para a aventura! 🏴‍☠️\n")
 
 
-def move_options():
-    header()
-    print("Press [W] to GO UP.")
-    print("Press [S] to GO DOWN.")
-    print("Press [A] to GO LEFT.")
-    print("Press [D] to GO RIGHT.")
-    footer()
-
-
 def number_of_players():
     header()
     print("Select number of players: ")
