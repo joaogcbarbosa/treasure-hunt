@@ -1,7 +1,7 @@
 from itertools import product
 from queue import Queue
 from random import choice, randint
-from threading import BoundedSemaphore, Event, Lock
+from threading import BoundedSemaphore, Lock
 from time import sleep, time
 from typing import Literal
 
@@ -9,6 +9,7 @@ from ..models.map import GameMap, SpecialGameMap
 from ..utils.checks import check_possible_moves
 from ..utils.constants import KEYBOARD_OPTIONS
 from ..utils.converters import string_to_matrix
+from ..utils.logger import write_log
 
 special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
@@ -50,7 +51,7 @@ def handle_special_map_queue(
     global queue_lock
     next_to_special_map: str = ""  # player
     with queue_lock:
-        print(f"{player} EM ESPERA OCUPADA")
+        write_log(f"{player} EM ESPERA OCUPADA")
         special_map_queue.put(player)  # Põe jogador na fila para o mapa especial
         map_semaphore.release()  # Jogadores que entram para a fila do mapa especial ficam em espera ocupada, então param de alterar o mapa principal
     while True:
@@ -62,7 +63,7 @@ def handle_special_map_queue(
             check_semaphore.release()
             break
         check_semaphore.release()
-    print(f"{next_to_special_map} SAIU DA ESPERA OCUPADA")
+    write_log(f"{next_to_special_map} SAIU DA ESPERA OCUPADA")
     return next_to_special_map
 
 
@@ -99,7 +100,6 @@ def handle_movement(
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
-    event: Event,
 ):
     x, y = new_coordinates[0], new_coordinates[1]
     former_x, former_y = former_coordinates[0], former_coordinates[1]
@@ -124,7 +124,7 @@ def handle_movement(
 
         map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
-        print(f"{next_to_special_map} ENTRANDO NO MAPA ESPECIAL")
+        write_log(f"{next_to_special_map} ENTRANDO NO MAPA ESPECIAL")
         player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial)
         play_special(
             player,
@@ -132,7 +132,6 @@ def handle_movement(
             special_game_map,
             game_map,
             (x, y),
-            event,
             map_semaphore,
             special_map_semaphore,
             special_map_queue,
@@ -143,7 +142,7 @@ def handle_movement(
         # ======================================================
         player_back_to_map(map_semaphore, game_map, player_in_special_map)
         special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
-        print(f"{player_in_special_map} SAINDO DO MAPA ESPECIAL")
+        write_log(f"{player_in_special_map} SAINDO DO MAPA ESPECIAL")
         sleep(0.5)
     else:
         if isinstance(game_map, GameMap):
@@ -159,11 +158,10 @@ def handle_movement(
             and isinstance(game_map, GameMap)
             and not any("X" in row for row in map_situation)
         ):
-            declare_champion(coin_db)
-            event.set()
+            map_semaphore.release()
         # =====================================================
         else:
-            print(f"Player {player} got {sum(coin_db[player])} points.")
+            # print(f"Player {player} got {sum(coin_db[player])} points.")
 
             # Jogador coletou a pontuação de onde estava e se move
             update_map(game_map, former_x, former_y, x, y, player)
@@ -178,20 +176,35 @@ def handle_movement(
 
 
 def play(
-    choice: Literal["W", "A", "S", "D"],
     player: str,
-    possible_moves: list[tuple[int]],
-    player_position: tuple[int, int],
     coin_db: dict[str, list],
     game_map: GameMap | SpecialGameMap,
-    event: Event,
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
     player_in_special_map: str,
 ):
+    
+    sleep(1)
+
+    if isinstance(game_map, GameMap):
+        map_semaphore.acquire()
+
+    if isinstance(game_map, GameMap):
+        print("======================")
+        print(game_map.display())
+        print("======================")
+    else:
+        print("=*=*=*=*=*=*=*=*=*=*=*")
+        print(game_map.display())
+        print("=*=*=*=*=*=*=*=*=*=*=*")
+
+    map_situation = string_to_matrix(game_map.display())
+    possible_moves, player_position = check_possible_moves(player, map_situation)
+
+    player_choice = choice(KEYBOARD_OPTIONS).upper()
+
     x, y = player_position
-    print(x,y)
     deltas = {
         "W": (-1, 0),  # Cima
         "A": (0, -1),  # Esquerda
@@ -199,15 +212,13 @@ def play(
         "D": (0, 1),  # Direita
     }
 
-    dx, dy = deltas[choice]
+    dx, dy = deltas[player_choice]
 
     new_player_position = (x + dx, y + dy)
 
     if new_player_position in possible_moves:
-        map_situation = string_to_matrix(game_map.display())
-        handle_movement(player, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue, event)
+        handle_movement(player, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue)
     else:
-        print("Could not move.")
         if player != player_in_special_map:
             map_semaphore.release()
 
@@ -218,7 +229,6 @@ def play_special(
     special_game_map: SpecialGameMap,
     game_map: GameMap,
     special_position: tuple[int, int],
-    event: Event,
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
@@ -228,24 +238,22 @@ def play_special(
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
     special_game_map.update(height, width, player)
+    
     # Inicia a contagem de tempo no mapa especial
     start_time = time()
     while True:
-        print(special_game_map.display())
-        possible_moves, player_pos = check_possible_moves(
-            player, string_to_matrix(special_game_map.display())
-        )
-        print(f"{player} turn:", end=" ")
-        player_choice = choice(KEYBOARD_OPTIONS).upper()
+        # print("*=*=*" * width_bound)
+        # print(special_game_map.display())
+        # print("*=*=*" * width_bound)
+        # possible_moves, player_pos = check_possible_moves(
+        #     player, string_to_matrix(special_game_map.display())
+        # )
+        # player_choice = choice(KEYBOARD_OPTIONS).upper()
         # player_choice = input().upper()
         play(
-            player_choice,
             player,
-            possible_moves,
-            player_pos,
             coin_db,
             special_game_map,
-            event,
             map_semaphore,
             special_map_semaphore,
             special_map_queue,
@@ -279,9 +287,18 @@ def play_special(
         global queue_lock
         with queue_lock:
             #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
-            while not special_map_queue.empty():
-                removed_player = special_map_queue.get()
-                print(f"Player {removed_player} removed from queue.")
+            if special_map_queue.empty():
+                write_log("===================================")
+                write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
+                write_log("===================================")
+                pass
+            else:
+                write_log("================================================================")
+                write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
+                while not special_map_queue.empty():
+                    removed_player = special_map_queue.get()
+                    write_log(f"{removed_player} REMOVIDO DA FILA.")
+                write_log("================================================================")
     #  =============================================================================================
 
 
