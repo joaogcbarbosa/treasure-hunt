@@ -3,3 +3,4 @@ SERVER_HOST, SERVER_PORT = HOST, PORT
 MAX_PLAYERS = 3
 MIN_PLAYERS = 2
 KEYBOARD_OPTIONS = ["W", "A", "S", "D"]
+LOGGER_FILE_PATH = ""  # <- Insert path to log file here
