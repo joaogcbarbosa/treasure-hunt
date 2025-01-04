@@ -1,3 +1,4 @@
+from itertools import product
 from queue import Queue
 from random import choice, randint
 from threading import BoundedSemaphore, Event, Lock
@@ -26,19 +27,16 @@ def collect_coin(
 
 def player_back_to_map(
     map_semaphore: BoundedSemaphore,
-    map_situation: list[list],
     game_map: GameMap,
     player_in_special_map: str,
 ):
+    players = {"P1", "P2", "P3"}
+    players = players - {player_in_special_map}
     map_semaphore.acquire()
-    _break = False
-    for i in range(len(map_situation)):
-        for j in range(len(map_situation)):
-            if map_situation[i][j] not in ("P1", "P2", "P3"):
-                game_map.update(i, j, player_in_special_map)
-                _break = True
-                break
-        if _break:
+    map_situation = string_to_matrix(game_map.display())
+    for i, j in product(range(len(map_situation)), range(len(map_situation))):
+        if map_situation[i][j] not in players and map_situation[i][j] != "X":
+            game_map.update(i, j, player_in_special_map)
             break
     map_semaphore.release()
 
@@ -52,6 +50,7 @@ def handle_special_map_queue(
     global queue_lock
     next_to_special_map: str = ""  # player
     with queue_lock:
+        print(f"{player} EM ESPERA OCUPADA")
         special_map_queue.put(player)  # Põe jogador na fila para o mapa especial
         map_semaphore.release()  # Jogadores que entram para a fila do mapa especial ficam em espera ocupada, então param de alterar o mapa principal
     while True:
@@ -63,6 +62,7 @@ def handle_special_map_queue(
             check_semaphore.release()
             break
         check_semaphore.release()
+    print(f"{next_to_special_map} SAIU DA ESPERA OCUPADA")
     return next_to_special_map
 
 
@@ -76,7 +76,7 @@ def get_total_coins(map_situation: list[list]):
 
 
 def update_map(
-    game_map: GameMap | SpecialGameMap, 
+    game_map: GameMap, 
     former_x: int, 
     former_y: int, 
     new_x: int, 
@@ -124,6 +124,7 @@ def handle_movement(
 
         map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
+        print(f"{next_to_special_map} ENTRANDO NO MAPA ESPECIAL")
         player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial)
         play_special(
             player,
@@ -140,11 +141,15 @@ def handle_movement(
 
         # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
         # ======================================================
-        player_back_to_map(map_semaphore, map_situation, game_map, player_in_special_map)
-        # ======================================================
+        player_back_to_map(map_semaphore, game_map, player_in_special_map)
         special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
+        print(f"{player_in_special_map} SAINDO DO MAPA ESPECIAL")
+        sleep(0.5)
     else:
-        collect_coin(coin_db, (x, y), game_map, player)
+        if isinstance(game_map, GameMap):
+            collect_coin(coin_db, (x, y), game_map, player)
+        else:
+            collect_coin(coin_db, (x, y), special_game_map, player)
 
         # Checando se a quantidade de pontos no mapa principal é igual a zero para finalizar o jogo.
         # =====================================================
@@ -162,7 +167,7 @@ def handle_movement(
 
             # Jogador coletou a pontuação de onde estava e se move
             update_map(game_map, former_x, former_y, x, y, player)
-
+            sleep(0.1)
             # Faz a comparação abaixo pois o player que está no mapa especial também usa a função
             # move_player, então o semáforo do mapa principal só será liberado se não for a thread
             # do player do mapa especial executando a função
@@ -186,7 +191,7 @@ def play(
     player_in_special_map: str,
 ):
     x, y = player_position
-
+    print(x,y)
     deltas = {
         "W": (-1, 0),  # Cima
         "A": (0, -1),  # Esquerda
@@ -218,7 +223,7 @@ def play_special(
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
     player_in_special_map: str,
-) -> bool:
+):
     # Spota jogador no mapa especial de acordo com os limites
     height_bound, width_bound = special_game_map.bounds()
     height, width = randint(0, height_bound), randint(0, width_bound)
@@ -256,10 +261,10 @@ def play_special(
     #  Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, pois se parou em cima, coletou a pontuação daquela coordenada
     #  ==================================================================
     special_map_situation = string_to_matrix(special_game_map.display())
-    for i in range(len(special_map_situation)):
-        for j in range(len(special_map_situation)):
-            if special_map_situation[i][j] == player:
-                special_game_map.update(i, j, "0")
+    for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
+        if special_map_situation[i][j] == player:
+            special_game_map.update(i, j, "0")
+            break
     #  ==================================================================
 
     #  Checa a pontuação total restante no mapa especial. Se não houver mais pontos, 
