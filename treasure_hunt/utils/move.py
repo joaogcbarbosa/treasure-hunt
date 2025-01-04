@@ -23,7 +23,7 @@ def collect_coin(
     game_map: GameMap | SpecialGameMap,
     player: str,
 ):
-    map_situation = string_to_matrix(game_map.display())
+    map_situation = game_map.matrix()
     coin_db[player].append(int(map_situation[coin_position[0]][coin_position[1]]))
 
 
@@ -35,7 +35,7 @@ def player_back_to_map(
     players = {"P1", "P2", "P3"}
     players = players - {player_in_special_map}
     map_semaphore.acquire()
-    map_situation = string_to_matrix(game_map.display())
+    map_situation = game_map.matrix()
     for i, j in product(range(len(map_situation)), range(len(map_situation))):
         if map_situation[i][j] not in players and map_situation[i][j] != "X":
             game_map.update(i, j, player_in_special_map)
@@ -193,7 +193,7 @@ def play(
 
     show_map(game_map)
 
-    map_situation = string_to_matrix(game_map.display())
+    map_situation = game_map.matrix()
     possible_moves, player_position = check_possible_moves(player, map_situation)
 
     player_choice = choice(KEYBOARD_OPTIONS).upper()
@@ -236,14 +236,6 @@ def play_special(
     # Inicia a contagem de tempo no mapa especial
     start_time = time()
     while True:
-        # print("*=*=*" * width_bound)
-        # print(special_game_map.display())
-        # print("*=*=*" * width_bound)
-        # possible_moves, player_pos = check_possible_moves(
-        #     player, string_to_matrix(special_game_map.display())
-        # )
-        # player_choice = choice(KEYBOARD_OPTIONS).upper()
-        # player_choice = input().upper()
         play(
             player,
             coin_db,
@@ -262,7 +254,7 @@ def play_special(
 
     #  Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, pois se parou em cima, coletou a pontuação daquela coordenada
     #  ==================================================================
-    special_map_situation = string_to_matrix(special_game_map.display())
+    special_map_situation = special_game_map.matrix()
     for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
         if special_map_situation[i][j] == player:
             special_game_map.update(i, j, "0")

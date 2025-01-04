@@ -4,7 +4,7 @@ from treasure_hunt.utils.converters import string_to_matrix
 from random import sample
 
 def spot_players(number_of_players: int, game_map: GameMap) -> None:
-    map_situation = string_to_matrix(game_map.display())
+    map_situation = game_map.matrix()
     all_positions = [
         (height, width) 
         for height in range(game_map.bounds()[0]) 

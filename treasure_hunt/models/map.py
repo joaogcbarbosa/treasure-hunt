@@ -3,8 +3,8 @@ from random import randint
 
 class GameMap:
     _instance = None
-    _HEIGHT = 6
-    _WIDTH = 6
+    _HEIGHT = 3
+    _WIDTH = 3
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -34,6 +34,18 @@ class GameMap:
             formatted_row = " | ".join(f"{str(cell):>3}" for cell in row)
             result.append(formatted_row)
         return "\n".join(result)
+    
+    def matrix(self) -> list[list]:
+        rows = self.display().strip().split("\n")
+        matrix = [
+            [
+                int(value.strip()) if value.strip().isdigit() else value.strip()
+                for value in row.split("|")
+            ]
+            for row in rows
+        ]
+
+        return matrix
 
 
     def update(self, x: int, y: int, value: str | int) -> None:
@@ -42,8 +54,8 @@ class GameMap:
 
 class SpecialGameMap:
     _instance = None
-    _HEIGHT = 5
-    _WIDTH = 5
+    _HEIGHT = 3
+    _WIDTH = 3
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -68,6 +80,18 @@ class SpecialGameMap:
             formatted_row = " | ".join(f"{str(cell):>3}" for cell in row)
             result.append(formatted_row)
         return "\n".join(result)
+    
+    def matrix(self) -> list[list]:
+        rows = self.display().strip().split("\n")
+        matrix = [
+            [
+                int(value.strip()) if value.strip().isdigit() else value.strip()
+                for value in row.split("|")
+            ]
+            for row in rows
+        ]
+
+        return matrix
 
     def update(self, x: int, y: int, value: str | int) -> None:
         self.special_game_map[x][y] = value
