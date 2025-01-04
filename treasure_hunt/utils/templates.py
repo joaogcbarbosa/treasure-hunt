@@ -13,7 +13,6 @@ def treasure_hunt_title():
     header()
     print("        🌟 TREASURE-HUNT 🌟")
     footer()
-    print("🪙 Prepare-se para a aventura! 🏴‍☠️\n")
 
 
 def number_of_players():
