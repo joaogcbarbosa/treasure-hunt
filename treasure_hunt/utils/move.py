@@ -16,6 +16,7 @@ from ..utils.logger import write_log
 special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
 check_semaphore = BoundedSemaphore()
+special_map_is_empty: bool = False
 
 
 def collect_coin(
@@ -50,7 +51,7 @@ def handle_special_map_queue(
     special_map_semaphore: BoundedSemaphore,
     player: str, 
 ) -> str:
-    global queue_lock
+    global queue_lock, special_map_is_empty
     next_to_special_map: str = ""  # player
     with queue_lock:
         write_log(f"{player} EM ESPERA OCUPADA")
@@ -64,6 +65,9 @@ def handle_special_map_queue(
             special_map_semaphore.acquire()
             check_semaphore.release()
             break
+        elif special_map_is_empty:
+            check_semaphore.release()
+            return
         check_semaphore.release()
     write_log(f"{next_to_special_map} SAIU DA ESPERA OCUPADA")
     return next_to_special_map
@@ -108,12 +112,14 @@ def handle_movement(
 
     # Se a posição escolhida pelo jogador for o mapa especial
     if map_situation[x][y] == "X":
-        global special_game_map
+        global special_game_map, special_map_is_empty
 
         # Bloco de espera ocupada para entrar no mapa especial
         # ========================================================
         if special_map_semaphore._value == 0:  # Se já tiver alguém no mapa especial
             next_to_special_map = handle_special_map_queue(special_map_queue,  map_semaphore, special_map_semaphore, player)
+            if special_map_is_empty:
+                return  # apenas inicia uma nova jogada
         # ========================================================
         else:
             # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
@@ -266,16 +272,17 @@ def play_special(
         int(elem) for row in special_map_situation for elem in row if elem not in ("P1", "P2", "P3")
     )
     if total_coins == 0:
-        game_map.update(special_position[0], special_position[1], "0")
+        global queue_lock, special_map_is_empty
 
-        global queue_lock
+        game_map.update(special_position[0], special_position[1], "0")
+        special_map_is_empty = True
+
         with queue_lock:
             #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
             if special_map_queue.empty():
                 write_log("===================================")
                 write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
                 write_log("===================================")
-                pass
             else:
                 write_log("================================================================")
                 write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
