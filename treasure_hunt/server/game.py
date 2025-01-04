@@ -1,9 +1,9 @@
-from treasure_hunt.models.map import GameMap
-from treasure_hunt.utils.converters import string_to_matrix
+from treasure_hunt.models.map import GameMap, SpecialGameMap
 
-from random import sample
+from random import sample, choice
 
-def spot_players(number_of_players: int, game_map: GameMap) -> None:
+def spot_players(players: list[str], game_map: GameMap | SpecialGameMap) -> None:
+    number_of_players = len(players)
     map_situation = game_map.matrix()
     all_positions = [
         (height, width) 
@@ -11,12 +11,14 @@ def spot_players(number_of_players: int, game_map: GameMap) -> None:
         for width in range(game_map.bounds()[1])
         if map_situation[height][width] != "X"  # Filtra posições com "X"
     ]
-    
-    # Garante que há posições disponíveis suficientes
-    if len(all_positions) < number_of_players:
-        raise ValueError("Não há posições disponíveis suficientes para todos os jogadores.")
-    
+        
     occupied_positions = sample(all_positions, number_of_players)
+    
+    if isinstance(game_map, SpecialGameMap):
+        new_position = choice(all_positions)
+        height, width = new_position
+        game_map.update(height, width, players[0])
+        return
     
     for i, (height, width) in enumerate(occupied_positions, start=1):
         player = f"P{i}"
