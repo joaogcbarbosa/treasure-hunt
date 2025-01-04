@@ -13,8 +13,8 @@ from treasure_hunt.utils.converters import string_to_matrix
 from treasure_hunt.utils.move import play
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
-game_map = GameMap()
-coin_db: dict[str, list] = {}
+game_map: GameMap
+coin_db: dict[str, list]
 map_semaphore = BoundedSemaphore()
 special_map_semaphore = BoundedSemaphore()
 special_map_queue = Queue(maxsize=MAX_PLAYERS - 1)
@@ -59,8 +59,8 @@ def client_runner(player: str):
                     player_in_special_map,
                 )
                 # ==================================================
-                sleep(2)
             except Exception as e:
+                print(player)
                 print(f"Erro com o client: {e}")
                 break
 
@@ -68,6 +68,7 @@ def client_runner(player: str):
 def server_runner(number_of_players: int):
     global coin_db, game_map
 
+    game_map = GameMap()
     coin_db = init_coin_db(number_of_players)
     accepted_connections: int = 0
 
@@ -82,9 +83,10 @@ def server_runner(number_of_players: int):
                 accepted_connections += 1
                 print(f"{accepted_connections}/{number_of_players}")
                 if accepted_connections == number_of_players:
-                    sleep(1)
+                    sleep(0.5)
                     print("Initializing map.\n")
                     spot_players(number_of_players, game_map)
+                    sleep(1)
 
 
 if __name__ == "__main__":
@@ -105,3 +107,8 @@ if __name__ == "__main__":
     for p in players:
         p.start()
         sleep(1)  # para simular entrada de cada vez de players no servidor
+
+    for p in players:
+        p.join()
+
+    server.join()
