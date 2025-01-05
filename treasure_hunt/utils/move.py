@@ -305,7 +305,7 @@ def play_special(
     #   - Zera a fila de espera.
     #  ===============================================================================
     if total_coins == 0:
-        shut_special_map(game_map, special_position, special_map_queue)
+        shut_special_map(game_map, special_position)
         empty_queue(special_map_queue)
     #  ===============================================================================
 
