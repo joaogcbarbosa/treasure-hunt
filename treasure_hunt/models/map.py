@@ -13,27 +13,22 @@ class Map(ABC):
 
     def __initialize(self) -> None:
         self.map_data = [
-            [self._random_treasure_value() for _ in range(self.width)]
-            for _ in range(self.height)
+            [self._random_treasure_value() for _ in range(self.width)] for _ in range(self.height)
         ]
         self._post_initialize()
 
     @property
     @abstractmethod
-    def height(self) -> int:
-        ...
+    def height(self) -> int: ...
 
     @property
     @abstractmethod
-    def width(self) -> int:
-        ...
+    def width(self) -> int: ...
 
     @abstractmethod
-    def _random_treasure_value(self) -> str:
-        ...
+    def _random_treasure_value(self) -> str: ...
 
-    def _post_initialize(self) -> None:
-        ...
+    def _post_initialize(self) -> None: ...
 
     def bounds(self) -> tuple[int, int]:
         return self.height - 1, self.width - 1

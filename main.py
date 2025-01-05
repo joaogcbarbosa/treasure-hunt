@@ -7,10 +7,9 @@ from treasure_hunt.client.client import client
 from treasure_hunt.models.map import GameMap
 from treasure_hunt.server.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players
-from treasure_hunt.utils.constants import HOST, PORT, SERVER_HOST, SERVER_PORT, MAX_PLAYERS
-from treasure_hunt.utils.move import play, declare_champion, get_total_coins
+from treasure_hunt.utils.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
+from treasure_hunt.utils.move import declare_champion, get_total_coins, play
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
-
 
 game_map: GameMap
 coin_db: dict[str, list]
@@ -45,11 +44,15 @@ def client_runner(player: str, players: list[str]):
                 # TODO: corrigir. não está protegido pelo semáforo
                 total_coins = get_total_coins(players, game_map)
                 map_situation = game_map.matrix()
-                if total_coins == 0 and isinstance(game_map, GameMap) and not any("X" in row for row in map_situation):
+                if (
+                    total_coins == 0
+                    and isinstance(game_map, GameMap)
+                    and not any("X" in row for row in map_situation)
+                ):
                     print(f"Disconnecting {player}")
                     connections = -1
                     break
-                
+
             except Exception as e:
                 print(player)
                 print(f"Erro com o client: {e}")
@@ -70,7 +73,7 @@ def server_runner(clients: list[str]):
         print("Running server...")
         while True:
             if connections == -1:
-                sleep(2)  # Deixando as Threads dos players terminarem antes do servidor 
+                sleep(2)  # Deixando as Threads dos players terminarem antes do servidor
                 print("Shutting down server")
                 break
             if connections < number_of_players:
@@ -96,7 +99,8 @@ if __name__ == "__main__":
 
     server = Thread(target=server_runner, args=(clients,))
     players = [
-        Thread(target=client_runner, args=(f"P{str(i)}", clients)) for i in range(1, nro_players + 1)
+        Thread(target=client_runner, args=(f"P{str(i)}", clients))
+        for i in range(1, nro_players + 1)
     ]
 
     server.start()

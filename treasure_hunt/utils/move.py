@@ -5,14 +5,12 @@ from threading import BoundedSemaphore, Lock
 from time import sleep, time
 from typing import Literal
 
-from ..server.game import spot_players
-
-from ..utils.templates import show_map
-
 from ..models.map import GameMap, SpecialGameMap
+from ..server.game import spot_players
 from ..utils.checks import check_possible_moves
 from ..utils.constants import KEYBOARD_OPTIONS
 from ..utils.logger import write_log
+from ..utils.templates import show_map
 
 special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
@@ -48,10 +46,10 @@ def player_back_to_map(
 
 
 def handle_special_map_queue(
-    special_map_queue: Queue, 
-    map_semaphore: BoundedSemaphore, 
+    special_map_queue: Queue,
+    map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
-    player: str, 
+    player: str,
 ) -> str:
     global queue_lock, special_map_is_empty
     next_player_to_special_map: str = ""  # player
@@ -62,7 +60,9 @@ def handle_special_map_queue(
     while True:
         check_semaphore.acquire()  # Semáforo para uma thread de cada vez checar se o semáforo do mapa especial foi liberado
         if special_map_semaphore._value != 0:
-            next_player_to_special_map = special_map_queue.get() # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
+            next_player_to_special_map = (
+                special_map_queue.get()
+            )  # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
             map_semaphore.acquire()  # Faz acquire para o mapa principal para realizar o movimento de entrada no mapa especial
             special_map_semaphore.acquire()
             check_semaphore.release()
@@ -85,20 +85,15 @@ def get_total_coins(players: list[str], game_map: GameMap | SpecialGameMap):
             if elem != "X" and elem not in players
         )
 
-    return sum(
-        int(elem) 
-        for row in map_situation 
-        for elem in row 
-        if elem not in players
-    )
+    return sum(int(elem) for row in map_situation for elem in row if elem not in players)
 
 
 def update_map(
-    game_map: GameMap, 
-    former_x: int, 
-    former_y: int, 
-    new_x: int, 
-    new_y: int, 
+    game_map: GameMap,
+    former_x: int,
+    former_y: int,
+    new_x: int,
+    new_y: int,
     value: Literal["X", "P1", "P2", "P3"],
 ):
 
@@ -129,7 +124,9 @@ def handle_movement(
         # Bloco de espera ocupada para entrar no mapa especial
         # ========================================================
         if special_map_semaphore._value == 0:  # Se já tiver alguém no mapa especial
-            next_player_to_special_map = handle_special_map_queue(special_map_queue,  map_semaphore, special_map_semaphore, player)
+            next_player_to_special_map = handle_special_map_queue(
+                special_map_queue, map_semaphore, special_map_semaphore, player
+            )
             if special_map_is_empty:
                 return  # apenas inicia uma nova jogada
         # ========================================================
@@ -145,7 +142,9 @@ def handle_movement(
         map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
         write_log(f"{next_player_to_special_map} ENTRANDO NO MAPA ESPECIAL")
-        player_in_special_map = next_player_to_special_map  # "Seta" o player que vai entrar no mapa especial)
+        player_in_special_map = (
+            next_player_to_special_map  # "Seta" o player que vai entrar no mapa especial)
+        )
         play_special(
             player,
             players,
@@ -204,7 +203,7 @@ def play(
     special_map_queue: Queue,
     player_in_special_map: str,
 ):
-    
+
     sleep(1)
 
     if isinstance(game_map, GameMap):
@@ -221,8 +220,8 @@ def play(
     deltas = {
         "W": (-1, 0),  # Cima
         "A": (0, -1),  # Esquerda
-        "S": (1, 0),   # Baixo
-        "D": (0, 1),   # Direita
+        "S": (1, 0),  # Baixo
+        "D": (0, 1),  # Direita
     }
 
     dx, dy = deltas[player_choice]
@@ -230,7 +229,19 @@ def play(
     new_player_position = (x + dx, y + dy)
 
     if new_player_position in possible_moves:
-        handle_movement(player, players, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue)
+        handle_movement(
+            player,
+            players,
+            player_in_special_map,
+            game_map,
+            coin_db,
+            map_situation,
+            new_player_position,
+            player_position,
+            map_semaphore,
+            special_map_semaphore,
+            special_map_queue,
+        )
     else:
         if player != player_in_special_map:
             map_semaphore.release()
@@ -283,7 +294,7 @@ def play_special(
 ):
     # Spota jogador no mapa especial
     spot_players([player], special_game_map)
-    
+
     # Inicia a contagem de tempo no mapa especial
     start_time = time()
     while True:
@@ -309,7 +320,7 @@ def play_special(
 
     #  Checa a pontuação total restante no mapa especial
     #  Se não houver mais pontos:
-    #   - Fecha o mapa especial trocando a coordenada dele no mapa principal por zero; 
+    #   - Fecha o mapa especial trocando a coordenada dele no mapa principal por zero;
     #   - Zera a fila de espera.
     #  ===============================================================================
     total_coins = get_total_coins(players, special_game_map)
