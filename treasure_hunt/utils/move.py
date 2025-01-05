@@ -1,7 +1,7 @@
 from itertools import product
 from queue import Queue
 from random import choice
-from threading import BoundedSemaphore, Lock
+from threading import BoundedSemaphore, Event, Lock
 from time import sleep, time
 from typing import Literal
 
@@ -113,6 +113,7 @@ def handle_movement(
     map_semaphore: BoundedSemaphore,
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
+    finish_game: Event,
 ):
     x, y = new_coordinates[0], new_coordinates[1]
     former_x, former_y = former_coordinates[0], former_coordinates[1]
@@ -156,6 +157,7 @@ def handle_movement(
             special_map_semaphore,
             special_map_queue,
             player_in_special_map,
+            finish_game,
         )
 
         # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
@@ -177,6 +179,7 @@ def handle_movement(
             and isinstance(game_map, GameMap)
             and not any("X" in row for row in map_situation)
         ):
+            finish_game.set()
             map_semaphore.release()
         # =====================================================
         else:
@@ -202,6 +205,7 @@ def play(
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
     player_in_special_map: str,
+    finish_game: Event,
 ):
 
     sleep(1)
@@ -241,6 +245,7 @@ def play(
             map_semaphore,
             special_map_semaphore,
             special_map_queue,
+            finish_game,
         )
     else:
         if player != player_in_special_map:
@@ -291,6 +296,7 @@ def play_special(
     special_map_semaphore: BoundedSemaphore,
     special_map_queue: Queue,
     player_in_special_map: str,
+    finish_game: Event,
 ):
     # Spota jogador no mapa especial
     spot_players([player], special_game_map)
@@ -307,6 +313,7 @@ def play_special(
             special_map_semaphore,
             special_map_queue,
             player_in_special_map,
+            finish_game
         )
 
         # Se passar dos 10s, sai do loop

@@ -1,6 +1,6 @@
 from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket
-from threading import BoundedSemaphore, Thread
+from threading import BoundedSemaphore, Thread, Event
 from time import sleep
 
 from treasure_hunt.client.client import client
@@ -17,7 +17,7 @@ map_semaphore = BoundedSemaphore()
 special_map_semaphore = BoundedSemaphore()
 special_map_queue = Queue(maxsize=MAX_PLAYERS - 1)
 player_in_special_map: str = ""
-connections: int
+finish_game: Event = Event()
 
 
 def init_coin_db(number_of_players: int) -> dict[str, list]:
@@ -25,7 +25,7 @@ def init_coin_db(number_of_players: int) -> dict[str, list]:
 
 
 def client_runner(player: str, players: list[str]):
-    global game_map, coin_db, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map, connections
+    global game_map, coin_db, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map, finish_game
     with client(SERVER_HOST, SERVER_PORT):
         sleep(5)  # Tempo para deixar o servidor plotar os players conectados no mapa
         while True:
@@ -39,17 +39,10 @@ def client_runner(player: str, players: list[str]):
                     special_map_semaphore,
                     special_map_queue,
                     player_in_special_map,
+                    finish_game,
                 )
 
-                total_coins = get_total_coins(players, game_map)
-                map_situation = game_map.matrix()
-                if (
-                    total_coins == 0
-                    and isinstance(game_map, GameMap)
-                    and not any("X" in row for row in map_situation)
-                ):
-                    print(f"Disconnecting {player}")
-                    connections = -1
+                if finish_game.is_set():
                     break
 
             except Exception as e:
@@ -59,7 +52,7 @@ def client_runner(player: str, players: list[str]):
 
 
 def server_runner(clients: list[str]):
-    global coin_db, game_map, connections
+    global coin_db, game_map, finish_game
 
     game_map = GameMap()
     number_of_players = len(clients)
@@ -71,7 +64,7 @@ def server_runner(clients: list[str]):
         s.listen()
         print("Running server...")
         while True:
-            if connections == -1:
+            if finish_game.is_set():
                 sleep(2)  # Deixando as Threads dos players terminarem antes do servidor
                 print("Shutting down server")
                 break
