@@ -1,3 +1,7 @@
+- Servidor: é inicializado com host e porta. Fica escutando e aceitando as solicitações de conexão de novos clientes. Quando o número de conexões passa a ser igual ao número de players informados para a partida, o servidor "spawna" os jogadores no mapa principal e aguarda em looping infinito até a condição da flag de parada ser verdadeira, momento de encerramento da thread do servidor.
+
+- Clientes: duas ou três threads que ficam em looping infinito executando a função "play" (se movendo pelos mapas e coletando pontos) até que a condição de parada seja verdadeira (ambos mapas com nenhum ponto restante para ser coletado).
+
 1) game_map e special_game_map: são, respectivamente, o mapa principal e o mapa especial. São as regiões críticas do jogo e são protegidos por map_semaphore e special_map_semaphore, nessa ordem.
 
 2) special_map_queue: é a fila que gerencia a entrada no mapa especial. Tem tamanho máximo variável: se for escolhido que no jogo terão dois players, a fila terá tamanho um, se for escolhido que no jogo terão três players, a fila terá tamanho dois. Ou seja, a fila sempre terá tamanho (MAX_PLAYERS - 1), visto que o primeiro que tentar entrar no mapa não precisa entrar em fila, pois antes é checado se o semáforo do mapa especial tem valor 1 ou 0. Se for 0 entra para fila, se for 1 acessa direto o mapa especial.
