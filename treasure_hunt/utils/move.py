@@ -296,7 +296,7 @@ def play_special(
         sleep(1)
 
     special_map_situation = special_game_map.matrix()
-    remove_player_from_special_map(player, special_game_map)
+    remove_player_from_special_map(player, special_map_situation)
 
     #  Checa a pontuação total restante no mapa especial
     total_coins = sum(int(elem) for row in special_map_situation for elem in row if elem not in players)
