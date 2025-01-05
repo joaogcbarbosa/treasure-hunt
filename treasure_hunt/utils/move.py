@@ -75,12 +75,21 @@ def handle_special_map_queue(
     return next_player_to_special_map
 
 
-def get_total_coins(players: list[str], map_situation: list[list]):
+def get_total_coins(players: list[str], game_map: GameMap | SpecialGameMap):
+    map_situation = game_map.matrix()
+    if isinstance(game_map, GameMap):
+        return sum(
+            int(elem)
+            for row in map_situation
+            for elem in row
+            if elem != "X" and elem not in players
+        )
+
     return sum(
-        int(elem)
-        for row in map_situation
-        for elem in row
-        if elem != "X" and elem not in players
+        int(elem) 
+        for row in map_situation 
+        for elem in row 
+        if elem not in players
     )
 
 
@@ -163,7 +172,7 @@ def handle_movement(
 
         # Checando se a quantidade de pontos no mapa principal é igual a zero para finalizar o jogo.
         # =====================================================
-        total_coins = get_total_coins(players, map_situation)
+        total_coins = get_total_coins(players, game_map)
         if (
             total_coins == 0
             and isinstance(game_map, GameMap)
@@ -299,11 +308,11 @@ def play_special(
     remove_player_from_special_map(player, special_map_situation)
 
     #  Checa a pontuação total restante no mapa especial
-    total_coins = sum(int(elem) for row in special_map_situation for elem in row if elem not in players)
     #  Se não houver mais pontos:
     #   - Fecha o mapa especial trocando a coordenada dele no mapa principal por zero; 
     #   - Zera a fila de espera.
     #  ===============================================================================
+    total_coins = get_total_coins(players, special_game_map)
     if total_coins == 0:
         shut_special_map(game_map, special_position)
         empty_queue(special_map_queue)
