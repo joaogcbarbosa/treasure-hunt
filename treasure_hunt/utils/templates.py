@@ -1,6 +1,7 @@
 from treasure_hunt.models.map import GameMap, SpecialGameMap
 
-
+# Mensagens no terminal
+# =======================================================
 def header():
     print("\n" + "=" * 40)
 
@@ -25,9 +26,14 @@ def number_of_players():
 
 def number_of_players_warn():
     print("Please select a possible number of players.")
+# =======================================================
 
 
 def show_map(game_map: GameMap | SpecialGameMap) -> None:
+    """
+    Envolve o print do mapa de uma forma se for o mapa principal
+    e com estrelas se for o mapa especial.
+    """
     if isinstance(game_map, GameMap):
         print("===============")
         print(game_map.display())

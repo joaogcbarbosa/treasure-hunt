@@ -4,13 +4,18 @@ from treasure_hunt.models.map import GameMap, SpecialGameMap
 
 
 def spot_players(players: list[str], game_map: GameMap | SpecialGameMap) -> None:
+    """
+    Função responsável por colocar os players aleatoriamente no mapa principal ou especial,
+    respeitando as posições já ocupadas por jogadores e o mapa especial ("X").
+    """
     number_of_players = len(players)
     map_situation = game_map.matrix()
+    height, width = game_map.bounds()
     all_positions = [
-        (height, width)
-        for height in range(game_map.bounds()[0] + 1)
-        for width in range(game_map.bounds()[1] + 1)
-        if map_situation[height][width] != "X"  # Filtra posições com "X"
+        (h, w)
+        for h in range(height + 1)
+        for w in range(width + 1)
+        if map_situation[h][w] != "X"
     ]
 
     occupied_positions = sample(all_positions, number_of_players)

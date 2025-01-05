@@ -2,6 +2,20 @@ from abc import ABC, abstractmethod
 from random import randint
 
 
+"""
+Como para todo jogo é usada apenas uma instância do mapa principal e do mapa especial, decidi fazer a classe abstrata Map, que é um singleton.
+- O que garante que GameMap e SpecialGameMap terão uma instância única é a definição do método mágico __new__ na classe Map;
+- As classes GameMap e SpecialGameMap implementam Map;
+- Os métodos abstratos estão com o decorador @abstractmethod na classe Map e não tem implementação pois são implementados pelos filhos;
+- A única diferença entre ambos mapas são:
+    - seus limites: o mapa principal é uma matriz 3x3 e o mapa especial é 2x2;
+    - o valor dos tesouros aleatórios: no mapa principal os valores são mais baixos e no mapa especial os valores são mais altos.
+
+obs: os limites dos mapas podem ser mudados alterando os métodos height e width, porém, como o jogo foi construído baseando-se em movimentos aleatórios, 
+usando proporções maiores para os mapas o jogo toma muito tempo para ser finalizado.
+"""
+
+
 class Map(ABC):
     _instance = None
 
