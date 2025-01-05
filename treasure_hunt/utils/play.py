@@ -199,7 +199,6 @@ def handle_movement(
             and isinstance(game_map, GameMap)
             and not any("X" in row for row in map_situation)
         ):
-            print(f"Disconnecting {player}")
             finish_game.set()
             map_semaphore.release()
         # =====================================================
