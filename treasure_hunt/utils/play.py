@@ -375,12 +375,3 @@ def play_special(
     if total_coins == 0:
         shut_special_map(game_map, special_position)
         empty_queue(special_map_queue)
-
-
-def declare_champion(coin_db: dict[str, list]):
-    """
-    Printa no terminal o jogador e sua soma de pontos coletados.
-    """
-    print("\n")
-    for k, v in coin_db.items():
-        print(f"{k}: {sum(v)} pontos")

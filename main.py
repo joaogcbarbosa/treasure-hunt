@@ -8,7 +8,7 @@ from treasure_hunt.map import GameMap
 from treasure_hunt.player_spotter import spot_players
 from treasure_hunt.utils.checks import check_number_of_players
 from treasure_hunt.utils.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
-from treasure_hunt.utils.play import declare_champion, get_total_coins, play
+from treasure_hunt.utils.play import play
 from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
 
 game_map: GameMap
@@ -30,6 +30,15 @@ def init_coin_db(number_of_players: int) -> dict[str, list[int]]:
     Sendo a key do dicionário o player e o value uma lista com os pontos coletados.
     """
     return {f"P{i}": [] for i in range(1, number_of_players + 1)}
+
+
+def declare_champion(coin_db: dict[str, list]):
+    """
+    Printa no terminal o jogador e sua soma de pontos coletados.
+    """
+    print("\n")
+    for k, v in coin_db.items():
+        print(f"{k}: {sum(v)} pontos")
 
 
 def client_runner(player: str, players: list[str]):
