@@ -31,10 +31,6 @@ def client_runner(player: str, players: list[str]):
         sleep(5)  # Tempo para deixar o servidor plotar os players conectados no mapa
         while True:
             try:
-                # Região crítica, pois altera a situação do mapa do jogo e do banco de coins.
-                # Não há semáforo para o banco de coins pois a proteção da região crítica
-                # pelo semáforo do mapa já protege o banco.
-                # ==================================================
                 play(
                     player,
                     players,
@@ -45,13 +41,15 @@ def client_runner(player: str, players: list[str]):
                     special_map_queue,
                     player_in_special_map,
                 )
+
+                # TODO: corrigir. não está protegido pelo semáforo
                 map_situation = game_map.matrix()
                 total_coins = get_total_coins(players, map_situation)
                 if total_coins == 0 and isinstance(game_map, GameMap) and not any("X" in row for row in map_situation):
                     print(f"Disconnecting {player}")
                     connections = -1
                     break
-                # ==================================================
+                
             except Exception as e:
                 print(player)
                 print(f"Erro com o client: {e}")
