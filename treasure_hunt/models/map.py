@@ -80,11 +80,11 @@ class GameMap(Map):
 class SpecialGameMap(Map):
     @property
     def height(self) -> int:
-        return 3
+        return 2
 
     @property
     def width(self) -> int:
-        return 3
+        return 2
 
     def _random_treasure_value(self) -> str:
         return str(randint(10, 30))
