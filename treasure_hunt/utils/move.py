@@ -1,6 +1,6 @@
 from itertools import product
 from queue import Queue
-from random import choice, randint
+from random import choice
 from threading import BoundedSemaphore, Lock
 from time import sleep, time
 from typing import Literal
@@ -53,7 +53,7 @@ def handle_special_map_queue(
     player: str, 
 ) -> str:
     global queue_lock, special_map_is_empty
-    next_to_special_map: str = ""  # player
+    next_player_to_special_map: str = ""  # player
     with queue_lock:
         write_log(f"{player} EM ESPERA OCUPADA")
         special_map_queue.put(player)  # Põe jogador na fila para o mapa especial
@@ -61,7 +61,7 @@ def handle_special_map_queue(
     while True:
         check_semaphore.acquire()  # Semáforo para uma thread de cada vez checar se o semáforo do mapa especial foi liberado
         if special_map_semaphore._value != 0:
-            next_to_special_map = special_map_queue.get() # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
+            next_player_to_special_map = special_map_queue.get() # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
             map_semaphore.acquire()  # Faz acquire para o mapa principal para realizar o movimento de entrada no mapa especial
             special_map_semaphore.acquire()
             check_semaphore.release()
@@ -70,8 +70,8 @@ def handle_special_map_queue(
             check_semaphore.release()
             return
         check_semaphore.release()
-    write_log(f"{next_to_special_map} SAIU DA ESPERA OCUPADA")
-    return next_to_special_map
+    write_log(f"{next_player_to_special_map} SAIU DA ESPERA OCUPADA")
+    return next_player_to_special_map
 
 
 def get_total_coins(map_situation: list[list]):
@@ -118,13 +118,13 @@ def handle_movement(
         # Bloco de espera ocupada para entrar no mapa especial
         # ========================================================
         if special_map_semaphore._value == 0:  # Se já tiver alguém no mapa especial
-            next_to_special_map = handle_special_map_queue(special_map_queue,  map_semaphore, special_map_semaphore, player)
+            next_player_to_special_map = handle_special_map_queue(special_map_queue,  map_semaphore, special_map_semaphore, player)
             if special_map_is_empty:
                 return  # apenas inicia uma nova jogada
         # ========================================================
         else:
             # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
-            next_to_special_map = player
+            next_player_to_special_map = player
             special_map_semaphore.acquire()
 
         # Jogador coletou a pontuação de onde estava, substitui por zero
@@ -133,8 +133,8 @@ def handle_movement(
 
         map_semaphore.release()  # Já que o jogador vai entrar no mapa especial, libera o mapa principal para o restante dos players
 
-        write_log(f"{next_to_special_map} ENTRANDO NO MAPA ESPECIAL")
-        player_in_special_map = next_to_special_map  # "Seta" o player que vai entrar no mapa especial)
+        write_log(f"{next_player_to_special_map} ENTRANDO NO MAPA ESPECIAL")
+        player_in_special_map = next_player_to_special_map  # "Seta" o player que vai entrar no mapa especial)
         play_special(
             player,
             coin_db,
