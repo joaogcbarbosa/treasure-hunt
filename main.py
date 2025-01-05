@@ -46,8 +46,7 @@ def client_runner(player: str, players: list[str]):
                     break
 
             except Exception as e:
-                print(player)
-                print(f"Erro com o client: {e}")
+                print(f"{player} - Client error: {e}")
                 break
 
 
@@ -64,20 +63,24 @@ def server_runner(clients: list[str]):
         s.listen()
         print("Running server...")
         while True:
-            if finish_game.is_set():
-                sleep(2)  # Deixando as Threads dos players terminarem antes do servidor
-                print("Shutting down server")
+            try:
+                if finish_game.is_set():
+                    sleep(2)  # Deixando as Threads dos players terminarem antes do servidor
+                    print("Shutting down server")
+                    break
+                if connections < number_of_players:
+                    _, addr = s.accept()
+                    print(f"Connection from {addr} accepted")
+                    connections += 1
+                    print(f"{connections}/{number_of_players}")
+                    if connections == number_of_players:
+                        sleep(1)
+                        print("Initializing map.\n")
+                        spot_players(clients, game_map)
+                        sleep(1)
+            except Exception as e:
+                print(f"Server error: {e}")
                 break
-            if connections < number_of_players:
-                _, addr = s.accept()
-                print(f"Connection from {addr} accepted")
-                connections += 1
-                print(f"{connections}/{number_of_players}")
-                if connections == number_of_players:
-                    sleep(1)
-                    print("Initializing map.\n")
-                    spot_players(clients, game_map)
-                    sleep(1)
 
 
 if __name__ == "__main__":
