@@ -46,7 +46,7 @@ def client_runner(player: str, players: list[str]):
                     player_in_special_map,
                 )
                 map_situation = game_map.matrix()
-                total_coins = get_total_coins(map_situation)
+                total_coins = get_total_coins(players, map_situation)
                 if total_coins == 0 and isinstance(game_map, GameMap) and not any("X" in row for row in map_situation):
                     print(f"Disconnecting {player}")
                     connections = -1
