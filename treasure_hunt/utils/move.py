@@ -212,8 +212,8 @@ def play(
     deltas = {
         "W": (-1, 0),  # Cima
         "A": (0, -1),  # Esquerda
-        "S": (1, 0),  # Baixo
-        "D": (0, 1),  # Direita
+        "S": (1, 0),   # Baixo
+        "D": (0, 1),   # Direita
     }
 
     dx, dy = deltas[player_choice]
@@ -225,6 +225,39 @@ def play(
     else:
         if player != player_in_special_map:
             map_semaphore.release()
+
+
+def remove_player_from_special_map(player: str, special_map_situation: list[list]) -> None:
+    """
+    Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, pois se parou em cima, coletou a pontuação daquela coordenada.
+    """
+    for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
+        if special_map_situation[i][j] == player:
+            special_game_map.update(i, j, "0")
+            break
+
+
+def shut_special_map(game_map: GameMap, special_position: tuple[int, int]) -> None:
+    global special_map_is_empty
+
+    game_map.update(special_position[0], special_position[1], "0")
+    special_map_is_empty = True
+
+
+def empty_queue(special_map_queue: Queue) -> None:
+    global queue_lock
+    with queue_lock:
+        if not special_map_queue.empty():
+            write_log("================================================================")
+            write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
+            while not special_map_queue.empty():
+                removed_player = special_map_queue.get()
+                write_log(f"{removed_player} REMOVIDO DA FILA.")
+            write_log("================================================================")
+            return
+        write_log("===================================")
+        write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
+        write_log("===================================")
 
 
 def play_special(
@@ -262,41 +295,19 @@ def play_special(
 
         sleep(1)
 
-    #  Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, pois se parou em cima, coletou a pontuação daquela coordenada
-    #  ==================================================================
     special_map_situation = special_game_map.matrix()
-    for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
-        if special_map_situation[i][j] == player:
-            special_game_map.update(i, j, "0")
-            break
-    #  ==================================================================
+    remove_player_from_special_map(player, special_game_map)
 
-    #  Checa a pontuação total restante no mapa especial. Se não houver mais pontos, 
-    #  fecha o mapa especial trocando a coordenada dele no mapa principal por zero e zera a fila de espera
-    #  =============================================================================================
-    total_coins = sum(
-        int(elem) for row in special_map_situation for elem in row if elem not in players
-    )
+    #  Checa a pontuação total restante no mapa especial
+    total_coins = sum(int(elem) for row in special_map_situation for elem in row if elem not in players)
+    #  Se não houver mais pontos:
+    #   - Fecha o mapa especial trocando a coordenada dele no mapa principal por zero; 
+    #   - Zera a fila de espera.
+    #  ===============================================================================
     if total_coins == 0:
-        global queue_lock, special_map_is_empty
-
-        game_map.update(special_position[0], special_position[1], "0")
-        special_map_is_empty = True
-
-        with queue_lock:
-            #  Remove todos jogadores da fila de espera para o mapa especial já que o mesmo não tem mais pontos para serem coletados
-            if special_map_queue.empty():
-                write_log("===================================")
-                write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
-                write_log("===================================")
-            else:
-                write_log("================================================================")
-                write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
-                while not special_map_queue.empty():
-                    removed_player = special_map_queue.get()
-                    write_log(f"{removed_player} REMOVIDO DA FILA.")
-                write_log("================================================================")
-    #  =============================================================================================
+        shut_special_map(game_map, special_position, special_map_queue)
+        empty_queue(special_map_queue)
+    #  ===============================================================================
 
 
 def declare_champion(coin_db: dict[str, list]):
