@@ -29,10 +29,10 @@ def number_of_players_warn():
 
 def show_map(game_map: GameMap | SpecialGameMap) -> None:
     if isinstance(game_map, GameMap):
-        print("======================")
+        print("===============")
         print(game_map.display())
-        print("======================")
+        print("===============")
         return
-    print("=*=*=*=*=*=*=*=*=*=*=*")
+    print("=*=*=*=*=*=*=*=")
     print(game_map.display())
-    print("=*=*=*=*=*=*=*=*=*=*=*")
+    print("=*=*=*=*=*=*=*=")

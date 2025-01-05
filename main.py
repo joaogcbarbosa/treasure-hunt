@@ -80,7 +80,7 @@ def server_runner(clients: list[str]):
                 connections += 1
                 print(f"{connections}/{number_of_players}")
                 if connections == number_of_players:
-                    sleep(0.5)
+                    sleep(1)
                     print("Initializing map.\n")
                     spot_players(clients, game_map)
                     sleep(1)
@@ -101,10 +101,10 @@ if __name__ == "__main__":
     ]
 
     server.start()
-    sleep(3)  # tempo para o servidor iniciar
+    sleep(2)  # Tempo para o servidor iniciar
     for p in players:
         p.start()
-        sleep(1)  # para simular entrada de cada vez de players no servidor
+        sleep(1)  # Simulando entrada de cada vez de players no servidor
 
     for p in players:
         p.join()
