@@ -6,7 +6,7 @@ from time import sleep, time
 from typing import Literal
 
 from ..map import GameMap, SpecialGameMap
-from ..server.game import spot_players
+from ..game import spot_players
 from ..utils.checks import check_possible_moves
 from ..utils.constants import KEYBOARD_OPTIONS
 from ..utils.logger import write_log

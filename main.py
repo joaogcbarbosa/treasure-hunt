@@ -5,7 +5,7 @@ from time import sleep
 
 from treasure_hunt.client.client import client
 from treasure_hunt.map import GameMap
-from treasure_hunt.server.game import spot_players
+from treasure_hunt.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players
 from treasure_hunt.utils.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
 from treasure_hunt.utils.move import declare_champion, get_total_coins, play
