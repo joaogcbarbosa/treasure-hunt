@@ -1,3 +1,4 @@
+from itertools import product
 from time import sleep
 from typing import Union
 
@@ -33,12 +34,11 @@ def check_available_moves(
 def check_player_position(game_map: list[list[Union[int, str]]], player: str) -> tuple[int, int]:
     x: int
     y: int
-    for i in range(len(game_map)):
-        for j in range(len(game_map)):
-            if isinstance(game_map[i][j], str) and game_map[i][j] == player:
-                x = i
-                y = j
-                break
+    for i, j in product(range(len(game_map)), range(len(game_map))):
+        if isinstance(game_map[i][j], str) and game_map[i][j] == player:
+            x = i
+            y = j
+            break
 
     return x, y
 
