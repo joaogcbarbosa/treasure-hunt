@@ -1,6 +1,6 @@
 from random import choice, sample
 
-from treasure_hunt.models.map import GameMap, SpecialGameMap
+from treasure_hunt.map import GameMap, SpecialGameMap
 
 
 def spot_players(players: list[str], game_map: GameMap | SpecialGameMap) -> None:

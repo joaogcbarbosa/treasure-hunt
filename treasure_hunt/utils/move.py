@@ -5,7 +5,7 @@ from threading import BoundedSemaphore, Event, Lock
 from time import sleep, time
 from typing import Literal
 
-from ..models.map import GameMap, SpecialGameMap
+from ..map import GameMap, SpecialGameMap
 from ..server.game import spot_players
 from ..utils.checks import check_possible_moves
 from ..utils.constants import KEYBOARD_OPTIONS

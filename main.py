@@ -4,7 +4,7 @@ from threading import BoundedSemaphore, Thread, Event
 from time import sleep
 
 from treasure_hunt.client.client import client
-from treasure_hunt.models.map import GameMap
+from treasure_hunt.map import GameMap
 from treasure_hunt.server.game import spot_players
 from treasure_hunt.utils.checks import check_number_of_players
 from treasure_hunt.utils.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
@@ -75,7 +75,7 @@ def server_runner(clients: list[str]):
 
     number_of_players: int = len(clients)
     connections: int = 0
-    
+
     game_map = GameMap()
     coin_db = init_coin_db(number_of_players)
 

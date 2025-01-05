@@ -1,4 +1,4 @@
-from treasure_hunt.models.map import GameMap, SpecialGameMap
+from treasure_hunt.map import GameMap, SpecialGameMap
 
 # Mensagens no terminal
 # =======================================================
