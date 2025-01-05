@@ -123,6 +123,63 @@ def update_map(
     game_map.update(new_x, new_y, value)
 
 
+def choose_movement():
+    """
+    Retorna o par ordenado que deve ser somado à posição atual
+    do jogador para que a movimentação seja realizada.
+    """
+    return {
+        "W": (-1, 0),  # Cima
+        "A": (0, -1),  # Esquerda
+        "S": (1, 0),  # Baixo
+        "D": (0, 1),  # Direita
+    }[choice(KEYBOARD_OPTIONS).upper()]
+
+
+def remove_player_from_special_map(player: str, special_map_situation: list[list]) -> None:
+    """
+    Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, 
+    pois se parou em cima, coletou a pontuação daquela coordenada.
+    """
+    for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
+        if special_map_situation[i][j] == player:
+            special_game_map.update(i, j, "0")
+            break
+
+
+def shut_special_map(game_map: GameMap, special_position: tuple[int, int]) -> None:
+    """
+    Fecha o mapa especial quando todos pontos dele são coletados;
+    Forma de fechamento: a string "X" no mapa principal é trocada por "0"
+    """
+    global special_map_is_empty
+
+    game_map.update(special_position[0], special_position[1], "0")
+    special_map_is_empty = True
+
+
+def empty_queue(special_map_queue: Queue) -> None:
+    """
+    1) Se tiver jogador na fila para entrada no mapa especial, a esvazia e
+    escreve no log os jogadores que foram retirados;
+    2) Se não tiver jogador na fila, apenas escreve no log que os recursos
+    do mapa especial foram egotados.
+    """
+    global queue_lock
+    with queue_lock:
+        if not special_map_queue.empty():
+            write_log("================================================================")
+            write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
+            while not special_map_queue.empty():
+                removed_player = special_map_queue.get()
+                write_log(f"{removed_player} REMOVIDO DA FILA.")
+            write_log("================================================================")
+            return
+        write_log("===================================")
+        write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
+        write_log("===================================")
+
+
 def handle_movement(
     player: str,
     players: list[str],
@@ -216,19 +273,6 @@ def handle_movement(
             # ==================================
 
 
-def choose_movement():
-    """
-    Retorna o par ordenado que deve ser somado à posição atual
-    do jogador para que a movimentação seja realizada.
-    """
-    return {
-        "W": (-1, 0),  # Cima
-        "A": (0, -1),  # Esquerda
-        "S": (1, 0),  # Baixo
-        "D": (0, 1),  # Direita
-    }[choice(KEYBOARD_OPTIONS).upper()]
-
-
 def play(
     player: str,
     players: list[str],
@@ -285,50 +329,6 @@ def play(
     else:
         if player != player_in_special_map:
             map_semaphore.release()
-
-
-def remove_player_from_special_map(player: str, special_map_situation: list[list]) -> None:
-    """
-    Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, 
-    pois se parou em cima, coletou a pontuação daquela coordenada.
-    """
-    for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
-        if special_map_situation[i][j] == player:
-            special_game_map.update(i, j, "0")
-            break
-
-
-def shut_special_map(game_map: GameMap, special_position: tuple[int, int]) -> None:
-    """
-    Fecha o mapa especial quando todos pontos dele são coletados;
-    Forma de fechamento: a string "X" no mapa principal é trocada por "0"
-    """
-    global special_map_is_empty
-
-    game_map.update(special_position[0], special_position[1], "0")
-    special_map_is_empty = True
-
-
-def empty_queue(special_map_queue: Queue) -> None:
-    """
-    1) Se tiver jogador na fila para entrada no mapa especial, a esvazia e
-    escreve no log os jogadores que foram retirados;
-    2) Se não tiver jogador na fila, apenas escreve no log que os recursos
-    do mapa especial foram egotados.
-    """
-    global queue_lock
-    with queue_lock:
-        if not special_map_queue.empty():
-            write_log("================================================================")
-            write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS, REMOVENDO JOGADORES DA FILA")
-            while not special_map_queue.empty():
-                removed_player = special_map_queue.get()
-                write_log(f"{removed_player} REMOVIDO DA FILA.")
-            write_log("================================================================")
-            return
-        write_log("===================================")
-        write_log("RECURSOS DO MAPA ESPECIAL ESGOTADOS")
-        write_log("===================================")
 
 
 def play_special(
