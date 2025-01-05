@@ -5,8 +5,8 @@ from threading import BoundedSemaphore, Event, Lock
 from time import sleep, time
 from typing import Literal
 
-from ..map import GameMap, SpecialGameMap
-from ..player_spotter import spot_players
+from .map import GameMap, SpecialGameMap
+from .player_spotter import spot_players
 from .checks import check_possible_moves
 from .constants import KEYBOARD_OPTIONS
 from .logger import write_log

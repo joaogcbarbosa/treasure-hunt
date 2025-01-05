@@ -39,6 +39,6 @@ def show_map(game_map: GameMap | SpecialGameMap) -> None:
         print(game_map.display())
         print("===============")
         return
-    print("=*=*=*=*=*=*=*=")
+    print("=*=*=*=*=")
     print(game_map.display())
-    print("=*=*=*=*=*=*=*=")
+    print("=*=*=*=*=")

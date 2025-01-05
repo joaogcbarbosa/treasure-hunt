@@ -6,10 +6,10 @@ from time import sleep
 from treasure_hunt.client.client import client
 from treasure_hunt.map import GameMap
 from treasure_hunt.player_spotter import spot_players
-from treasure_hunt.utils.checks import check_number_of_players
-from treasure_hunt.utils.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
-from treasure_hunt.utils.play import play
-from treasure_hunt.utils.templates import number_of_players, treasure_hunt_title
+from treasure_hunt.checks import check_number_of_players
+from treasure_hunt.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
+from treasure_hunt.play import play
+from treasure_hunt.templates import number_of_players, treasure_hunt_title
 
 game_map: GameMap
 coin_db: dict[str, list]
