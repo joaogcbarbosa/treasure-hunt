@@ -7,8 +7,8 @@ def spot_players(players: list[str], game_map: GameMap | SpecialGameMap) -> None
     map_situation = game_map.matrix()
     all_positions = [
         (height, width) 
-        for height in range(game_map.bounds()[0]) 
-        for width in range(game_map.bounds()[1])
+        for height in range(game_map.bounds()[0] + 1) 
+        for width in range(game_map.bounds()[1] + 1)
         if map_situation[height][width] != "X"  # Filtra posições com "X"
     ]
         
