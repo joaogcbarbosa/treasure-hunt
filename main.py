@@ -41,7 +41,6 @@ def client_runner(player: str, players: list[str]):
                     player_in_special_map,
                 )
 
-                # TODO: corrigir. não está protegido pelo semáforo
                 total_coins = get_total_coins(players, game_map)
                 map_situation = game_map.matrix()
                 if (
