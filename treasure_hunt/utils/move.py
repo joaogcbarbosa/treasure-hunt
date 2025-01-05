@@ -31,11 +31,12 @@ def collect_coin(
 
 
 def player_back_to_map(
+    players: list[str],
+    player_in_special_map: str,
     map_semaphore: BoundedSemaphore,
     game_map: GameMap,
-    player_in_special_map: str,
 ):
-    players = {"P1", "P2", "P3"}
+    players = set(players)
     players = players - {player_in_special_map}
     map_semaphore.acquire()
     map_situation = game_map.matrix()
@@ -74,12 +75,12 @@ def handle_special_map_queue(
     return next_player_to_special_map
 
 
-def get_total_coins(map_situation: list[list]):
+def get_total_coins(players: list[str], map_situation: list[list]):
     return sum(
         int(elem)
         for row in map_situation
         for elem in row
-        if elem != "X" and elem not in ("P1", "P2", "P3")
+        if elem != "X" and elem not in players
     )
 
 
@@ -98,6 +99,7 @@ def update_map(
 
 def handle_movement(
     player: str,
+    players: list[str],
     player_in_special_map: str,
     game_map: GameMap | SpecialGameMap,
     coin_db: dict[str, list[int]],
@@ -137,6 +139,7 @@ def handle_movement(
         player_in_special_map = next_player_to_special_map  # "Seta" o player que vai entrar no mapa especial)
         play_special(
             player,
+            players,
             coin_db,
             special_game_map,
             game_map,
@@ -148,7 +151,7 @@ def handle_movement(
         )
 
         # Devolve jogador que estava no mapa especial para o mapa principal logo na primeira posição que achar livre
-        player_back_to_map(map_semaphore, game_map, player_in_special_map)
+        player_back_to_map(players, player_in_special_map, map_semaphore, game_map)
         special_map_semaphore.release()  # Libera o mapa especial após tempo de 10s
         write_log(f"{player_in_special_map} SAINDO DO MAPA ESPECIAL")
         sleep(0.5)
@@ -160,7 +163,7 @@ def handle_movement(
 
         # Checando se a quantidade de pontos no mapa principal é igual a zero para finalizar o jogo.
         # =====================================================
-        total_coins = get_total_coins(map_situation)
+        total_coins = get_total_coins(players, map_situation)
         if (
             total_coins == 0
             and isinstance(game_map, GameMap)
@@ -173,7 +176,6 @@ def handle_movement(
 
             # Jogador coletou a pontuação de onde estava e se move
             update_map(game_map, former_x, former_y, x, y, player)
-            sleep(0.1)
             # Faz a comparação abaixo pois o player que está no mapa especial também usa a função
             # move_player, então o semáforo do mapa principal só será liberado se não for a thread
             # do player do mapa especial executando a função
@@ -185,6 +187,7 @@ def handle_movement(
 
 def play(
     player: str,
+    players: list[str],
     coin_db: dict[str, list],
     game_map: GameMap | SpecialGameMap,
     map_semaphore: BoundedSemaphore,
@@ -218,7 +221,7 @@ def play(
     new_player_position = (x + dx, y + dy)
 
     if new_player_position in possible_moves:
-        handle_movement(player, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue)
+        handle_movement(player, players, player_in_special_map, game_map, coin_db, map_situation, new_player_position, player_position, map_semaphore, special_map_semaphore, special_map_queue)
     else:
         if player != player_in_special_map:
             map_semaphore.release()
@@ -226,6 +229,7 @@ def play(
 
 def play_special(
     player: str,
+    players: list[str],
     coin_db: dict[str, list],
     special_game_map: SpecialGameMap,
     game_map: GameMap,
@@ -243,6 +247,7 @@ def play_special(
     while True:
         play(
             player,
+            players,
             coin_db,
             special_game_map,
             map_semaphore,
@@ -270,7 +275,7 @@ def play_special(
     #  fecha o mapa especial trocando a coordenada dele no mapa principal por zero e zera a fila de espera
     #  =============================================================================================
     total_coins = sum(
-        int(elem) for row in special_map_situation for elem in row if elem not in ("P1", "P2", "P3")
+        int(elem) for row in special_map_situation for elem in row if elem not in players
     )
     if total_coins == 0:
         global queue_lock, special_map_is_empty

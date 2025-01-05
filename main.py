@@ -25,7 +25,7 @@ def init_coin_db(number_of_players: int) -> dict[str, list]:
     return {f"P{i}": [] for i in range(1, number_of_players + 1)}
 
 
-def client_runner(player: str):
+def client_runner(player: str, players: list[str]):
     global game_map, coin_db, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map, connections
     with client(SERVER_HOST, SERVER_PORT):
         sleep(5)  # Tempo para deixar o servidor plotar os players conectados no mapa
@@ -37,6 +37,7 @@ def client_runner(player: str):
                 # ==================================================
                 play(
                     player,
+                    players,
                     coin_db,
                     game_map,
                     map_semaphore,
@@ -71,7 +72,7 @@ def server_runner(clients: list[str]):
         print("Running server...")
         while True:
             if connections == -1:
-                sleep(5)  # gambi para deixar os players terminarem antes do servidor xD 
+                sleep(2)  # Deixando as Threads dos players terminarem antes do servidor 
                 print("Shutting down server")
                 break
             if connections < number_of_players:
@@ -97,7 +98,7 @@ if __name__ == "__main__":
 
     server = Thread(target=server_runner, args=(clients,))
     players = [
-        Thread(target=client_runner, args=(f"P{str(i)}",)) for i in range(1, nro_players + 1)
+        Thread(target=client_runner, args=(f"P{str(i)}", clients)) for i in range(1, nro_players + 1)
     ]
 
     server.start()
