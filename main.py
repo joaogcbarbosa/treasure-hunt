@@ -1,14 +1,14 @@
 from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket
-from threading import BoundedSemaphore, Thread, Event
+from threading import BoundedSemaphore, Event, Thread
 from time import sleep
 
-from treasure_hunt.client.client import client
-from treasure_hunt.map import GameMap
-from treasure_hunt.player_spotter import spot_players
 from treasure_hunt.checks import check_number_of_players
+from treasure_hunt.client.client import client
 from treasure_hunt.constants import HOST, MAX_PLAYERS, PORT, SERVER_HOST, SERVER_PORT
+from treasure_hunt.map import GameMap
 from treasure_hunt.play import play
+from treasure_hunt.player_spotter import spot_players
 from treasure_hunt.templates import number_of_players, treasure_hunt_title
 
 game_map: GameMap
@@ -43,8 +43,8 @@ def declare_champion(coin_db: dict[str, list]):
 
 def client_runner(player: str, players: list[str]):
     """
-    Duas ou três threads que ficam em looping infinito executando a função "play" 
-    (se movendo pelos mapas e coletando pontos) até que a condição de parada seja verdadeira 
+    Duas ou três threads que ficam em looping infinito executando a função "play"
+    (se movendo pelos mapas e coletando pontos) até que a condição de parada seja verdadeira
     (ambos mapas com nenhum ponto restante para ser coletado).
     """
     global game_map, coin_db, map_semaphore, special_map_semaphore, special_map_queue, player_in_special_map, finish_game
@@ -74,10 +74,10 @@ def client_runner(player: str, players: list[str]):
 
 def server_runner(clients: list[str]):
     """
-    Servidor é inicializado com host e porta. 
-    Fica escutando e aceitando as solicitações de conexão de novos clientes. 
-    Quando o número de conexões passa a ser igual ao número de players informados para a partida, 
-    o servidor "spawna" os jogadores no mapa principal e aguarda em looping infinito até a condição da flag de parada ser verdadeira, 
+    Servidor é inicializado com host e porta.
+    Fica escutando e aceitando as solicitações de conexão de novos clientes.
+    Quando o número de conexões passa a ser igual ao número de players informados para a partida,
+    o servidor "spawna" os jogadores no mapa principal e aguarda em looping infinito até a condição da flag de parada ser verdadeira,
     momento de encerramento da thread do servidor.
     """
     global game_map, coin_db, finish_game
@@ -87,7 +87,6 @@ def server_runner(clients: list[str]):
 
     game_map = GameMap()
     coin_db = init_coin_db(number_of_players)
-
 
     with socket(AF_INET, SOCK_STREAM) as s:
         s.bind((HOST, PORT))
@@ -143,7 +142,7 @@ if __name__ == "__main__":
 
     for p in players:
         p.join()
-                      # Encerramento das threads dos jogadores e do servidor
+        # Encerramento das threads dos jogadores e do servidor
     server.join()
 
     declare_champion(coin_db)  # Printa no terminal a pontuação final de cada jogador

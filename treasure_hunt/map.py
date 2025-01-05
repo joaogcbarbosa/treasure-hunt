@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from random import randint
 
-
 """
 Como para todo jogo é usada apenas uma instância do mapa principal e do mapa especial, decidi fazer a classe abstrata Map, que é um singleton.
 - O que garante que GameMap e SpecialGameMap terão uma instância única é a definição do método mágico __new__ na classe Map;

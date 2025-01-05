@@ -1,5 +1,6 @@
 from treasure_hunt.map import GameMap, SpecialGameMap
 
+
 # Mensagens no terminal
 # =======================================================
 def header():
@@ -26,6 +27,8 @@ def number_of_players():
 
 def number_of_players_warn():
     print("Please select a possible number of players.")
+
+
 # =======================================================
 
 

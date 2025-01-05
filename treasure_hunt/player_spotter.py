@@ -12,10 +12,7 @@ def spot_players(players: list[str], game_map: GameMap | SpecialGameMap) -> None
     map_situation = game_map.matrix()
     height, width = game_map.bounds()
     all_positions = [
-        (h, w)
-        for h in range(height + 1)
-        for w in range(width + 1)
-        if map_situation[h][w] != "X"
+        (h, w) for h in range(height + 1) for w in range(width + 1) if map_situation[h][w] != "X"
     ]
 
     occupied_positions = sample(all_positions, number_of_players)

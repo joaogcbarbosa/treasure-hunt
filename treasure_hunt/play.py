@@ -5,11 +5,11 @@ from threading import BoundedSemaphore, Event, Lock
 from time import sleep, time
 from typing import Literal
 
-from .map import GameMap, SpecialGameMap
-from .player_spotter import spot_players
 from .checks import check_possible_moves
 from .constants import KEYBOARD_OPTIONS
 from .logger import write_log
+from .map import GameMap, SpecialGameMap
+from .player_spotter import spot_players
 from .templates import show_map
 
 special_game_map = SpecialGameMap()
@@ -138,7 +138,7 @@ def choose_movement():
 
 def remove_player_from_special_map(player: str, special_map_situation: list[list]) -> None:
     """
-    Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero, 
+    Loop para achar a posição que o jogador parou no mapa especial após o tempo esgotado e trocar por zero,
     pois se parou em cima, coletou a pontuação daquela coordenada.
     """
     for i, j in product(range(len(special_map_situation)), range(len(special_map_situation))):
@@ -207,7 +207,7 @@ def handle_movement(
             )
             if special_map_is_empty:
                 return  # apenas inicia uma nova jogada
-            
+
         else:
             # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
             next_player_to_special_map = player
@@ -359,7 +359,7 @@ def play_special(
             map_semaphore,
             special_map_semaphore,
             special_map_queue,
-            finish_game
+            finish_game,
         )
 
         # Se passar dos 10s, sai do loop
