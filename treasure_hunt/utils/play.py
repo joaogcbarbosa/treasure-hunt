@@ -7,10 +7,10 @@ from typing import Literal
 
 from ..map import GameMap, SpecialGameMap
 from ..player_spotter import spot_players
-from ..utils.checks import check_possible_moves
-from ..utils.constants import KEYBOARD_OPTIONS
-from ..utils.logger import write_log
-from ..utils.templates import show_map
+from .checks import check_possible_moves
+from .constants import KEYBOARD_OPTIONS
+from .logger import write_log
+from .templates import show_map
 
 special_game_map = SpecialGameMap()
 queue_lock: Lock = Lock()
