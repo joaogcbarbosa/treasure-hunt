@@ -78,10 +78,13 @@ def handle_special_map_queue(
                 special_map_queue.get()
             )  # Se o semáforo do mapa especial foi liberado então o próximo da fila é resgatado
             map_semaphore.acquire()  # Faz acquire para o mapa principal para realizar o movimento de entrada no mapa especial
-            special_map_semaphore.acquire()
+            special_map_semaphore.acquire()  # Vez de entrar no especial
             check_semaphore.release()
             break
         elif special_map_is_empty:
+            # Se chegou a vez mas o mapa especial está vazio, não pode mais entrar
+            map_semaphore.release()
+            special_map_semaphore.release()
             check_semaphore.release()
             return
         check_semaphore.release()
@@ -205,9 +208,7 @@ def handle_movement(
             next_player_to_special_map = handle_special_map_queue(
                 special_map_queue, map_semaphore, special_map_semaphore, player
             )
-            if special_map_is_empty:
-                return  # apenas inicia uma nova jogada
-
+            if special_map_is_empty: return  # apenas inicia uma nova jogada
         else:
             # Se não havia jogador no mapa especial então o próximo a entrar é o primeiro que solicitou
             next_player_to_special_map = player
